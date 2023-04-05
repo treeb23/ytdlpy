@@ -1,3 +1,7 @@
-from setuptools import setup
+from setuptools import setup,find_package()
 
-setup()
+setup(
+    name=ytdlpy',
+    version='0.0.1',
+    packages=find_package()
+)
