@@ -54,7 +54,7 @@ def filepath(): # ファイルパスの設定
         # Google Driveをcolabにマウント
         from google.colab import drive
         drive.mount('/content/drive')
-        f_path="/content/drive/MyDrive/hikitugi"
+        f_path="/content/drive/MyDrive/lab"
     except ModuleNotFoundError as e:
         print(e)
     print(f"[ファイルパスf_pathを'{f_path}'に設定]")
