@@ -1,12 +1,12 @@
 from setuptools import setup,find_packages
 install_requires = [
-    ffmpeg,
-    pydub,
-    simpleaudio,
-    youtube-transcript-api,
-    yt-dlp,
-    librosa,
-    nltk,
+    ffmpeg
+    pydub
+    simpleaudio
+    youtube-transcript-api
+    yt-dlp
+    librosa
+    nltk
 ]
 
 with open("README.md", "r", encoding="utf-8") as fh:
