@@ -1,1 +1,1 @@
-from ydlpy.ytdlpy import *
+from ytdlpy.ytdlpy import *
