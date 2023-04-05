@@ -56,7 +56,7 @@ f_path = y.filepath()
 字幕ダウンロードから音声分割(CSV書き込み)までを一括実行する
 ```
 URL = 'https://youtu.be/YY6LCOJbve8'
-y.fromDLtoCSV(URL)
+y.fromDLtoCSV(f_path,URL)
 ```
 分割済み音声のリストを表示する
 ```
