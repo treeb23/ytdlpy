@@ -17,13 +17,13 @@ lab/
 # 使い方
 まず必要なライブラリのインストール
 ```
-pip install ffmpeg
-pip install pydub
-pip install simpleaudio
-pip install youtube-transcript-api
-pip install yt-dlp
-pip install librosa
-pip install nltk
+!pip install ffmpeg
+!pip install pydub
+!pip install simpleaudio
+!pip install youtube-transcript-api
+!pip install yt-dlp
+!pip install librosa
+!pip install nltk
 ```
 インポート
 ```
