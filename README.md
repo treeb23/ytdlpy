@@ -1,5 +1,7 @@
 # ytdlpy
-GoogleColaboratoryとWindowsで動作を確認
+GoogleColaboratoryとVSCODE(Windows)で動作を確認
+
+.ipynbファイルを以下の場所に作成する
 
 ディレクトリ構成は
 ```
