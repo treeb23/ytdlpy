@@ -15,7 +15,17 @@ lab/
 > ver 0.0.1 2023/04/05 字幕ダウンロード ~ 分割した音声の確認
 
 # 使い方
-まず必要なライブラリのインポート
+まず必要なライブラリのインストール
+```
+pip install ffmpeg
+pip install pydub
+pip install simpleaudio
+pip install youtube-transcript-api
+pip install yt-dlp
+pip install librosa
+pip install nltk
+```
+インポート
 ```
 import numpy as np
 import matplotlib.pyplot as plt
