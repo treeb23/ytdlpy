@@ -15,7 +15,7 @@ from yt_dlp import YoutubeDL
 import librosa
 import nltk
 
-def fromDLtoCSV(URL): # 字幕ダウンロードから音声分割まで一括実行（JSON書き込み含む）
+def fromDLtoCSV(f_path,URL): # 字幕ダウンロードから音声分割まで一括実行（JSON書き込み含む）
     print("[fromDLtoCSVを実行]")
     text,text_jp,start,duration,_=yt_totext(URL)
     if url_check(f_path,_)==False:
