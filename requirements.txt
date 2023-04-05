@@ -1,0 +1,7 @@
+ffmpeg
+pydub
+simpleaudio
+youtube-transcript-api
+yt-dlp
+librosa
+nltk
