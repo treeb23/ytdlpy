@@ -15,6 +15,8 @@ try:
     import ffmpeg
     from pydub import AudioSegment
     import simpleaudio
+except:
+    print("ffmpeg,pydub,simpleaudioのimportに失敗認め制限されます")
 
 
 def YTDL(url,folder,errlist): # 音声と動画を最高品質でダウンロード
