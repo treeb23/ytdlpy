@@ -15,6 +15,45 @@ from yt_dlp import YoutubeDL
 import librosa
 import nltk
 
+
+def YTDL(url,folder,errlist): # 音声と動画を最高品質でダウンロード
+    try:
+        with YoutubeDL() as ydl:
+            res = ydl.extract_info(url,download=False)
+        #下記一覧の名称をキーに指定
+        print(res['id']) 
+        import os
+        if len(res['title'])>100:
+            print("RENAME")
+            res['title']=res['title'][0:99]
+        print(res['title']) 
+        #動画取得
+        ydl_video_opts = {
+            'outtmpl': f"{folder}/{res['title']}_{res['id']}.mp4",
+            'format': 'bestvideo/best'
+        }
+        with YoutubeDL(ydl_video_opts) as ydl:
+            ydl.download([url])
+        #音声取得
+        ydl_audio_opts = {
+            'outtmpl': f"{folder}/{res['title']}_{res['id']}.mp3",
+            'format': 'bestaudio/best'
+        }
+        with YoutubeDL(ydl_audio_opts) as ydl:
+            ydl.download([url])
+        print("end")
+    except Exception as e:
+        try:
+            errlist.append(url)
+            #errorrsn.append(e)
+        except:
+            errlist=[]
+            errlist.append(url)
+            #errorrsn.append(e)
+        print("error")
+    return errlist
+
+
 def fromDLtoCSV(f_path,URL): # 字幕ダウンロードから音声分割まで一括実行（JSON書き込み含む）
     print("[fromDLtoCSVを実行]")
     text,text_jp,start,duration,_=yt_totext(URL)
