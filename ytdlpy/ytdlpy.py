@@ -7,13 +7,14 @@ import sys
 import IPython.display
 from IPython.display import display
 import librosa.display
-import ffmpeg
-from pydub import AudioSegment
-import simpleaudio
 from youtube_transcript_api import YouTubeTranscriptApi
 from yt_dlp import YoutubeDL
 import librosa
 import nltk
+try:
+    import ffmpeg
+    from pydub import AudioSegment
+    import simpleaudio
 
 
 def YTDL(url,folder,errlist): # 音声と動画を最高品質でダウンロード
