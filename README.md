@@ -129,3 +129,23 @@ y.pyplot_set()
 x=2 #音声の番号を指定する(df_textのindexに対応)
 y.wav_show(f_path,x,v_id,df_text)
 ```
+
+音声のタイムスタンプを取得(GoogleCloud Speech-to-Text APIを利用,DataFrameで返る)
+```py
+# 初回はインストール必要
+!pip install google-cloud-speech
+```
+```py
+import io
+from google.cloud import speech
+```
+```py
+voice_file_path = 'sample_voice.wav'
+timestamp=y.gc_stt_getword_timestamp(f_path,voice_file_path)
+timestamp
+```
+
+最高品質の動画と音声をダウンロード(エラーが発生した場合にerrlistにurlが記録される,errlistが返る)
+```py
+y.YTDL(url,folder,errlist=[])
+```
