@@ -15,7 +15,9 @@ lab/
 
 
 > ver 0.0.1 2023/04/05 字幕ダウンロード ~ 分割した音声の確認
+> 
 > ver 0.0.2 2023/04/14 動画と音声を最高品質でダウンロードできるYTDL()
+> 
 > ver 0.0.3 2023/04/15 GoogleCloud Speech-to-Textで音声のタイムスタンプを取得できるgc_stt_getword_timestamp(f_path,voice_file_pathを追加)
 
 # 使い方
