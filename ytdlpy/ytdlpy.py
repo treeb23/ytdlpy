@@ -271,12 +271,17 @@ def wav_show(f_path,x,v_id,df_text):
     return wav,sr,wav_text
 
 
-def gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav'):
+def gc_stt_getword_timestamp(f_path,v_id,x):
+    # 音声のサンプリングレートを変換した一時ファイルを作成
+    wav_path=f"{f_path}/data/textaudio/{v_id}/{v_id}_{x}.wav"
+    wav, sr = librosa.core.load(wav_path,sr=16000, mono=True) 
+    sf.write("test.wav", wav, sr, subtype="PCM_16")
+    dd=pd.DataFrame(wav)
     from google.cloud import speech
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = api_key_path = f'{f_path}/code/secretkey.json'
     client = speech.SpeechClient()
 
-    with io.open(voice_file_path, "rb") as audio_file:
+    with io.open("test.wav", "rb") as audio_file:
         content = audio_file.read()
 
     audio = speech.RecognitionAudio(content=content)
@@ -304,11 +309,7 @@ def gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav'):
             record = pd.Series(transaction, index=stamp.columns)
             stamp.loc[len(stamp)] = record
         
-    # 音声のサンプリングレートを変換した一時ファイルを作成して単語ごとの最大音量をstampに追記
-    wav_path=f"{f_path}/data/textaudio/{v_id}/{v_id}_{x}.wav"
-    wav, sr = librosa.core.load(wav_path,sr=16000, mono=True) 
-    sf.write("test.wav", wav, sr, subtype="PCM_16")
-    dd=pd.DataFrame(wav)
+    # 単語ごとの最大音量をstampに追記
     stamp['max']=0.0
     for i in range(len(stamp)):
         word=stamp.iloc[i,0]
