@@ -11,6 +11,7 @@ import librosa.display
 from youtube_transcript_api import YouTubeTranscriptApi
 from yt_dlp import YoutubeDL
 import librosa
+import soundfile as sf
 import nltk
 try:
     import ffmpeg
@@ -270,7 +271,7 @@ def wav_show(f_path,x,v_id,df_text):
     return wav,sr,wav_text
 
 
-def gc_stt_getword_timestamp(f_path,voice_file_path='sample.wav'):
+def gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav'):
     from google.cloud import speech
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = api_key_path = f'{f_path}/code/secretkey.json'
     client = speech.SpeechClient()
@@ -303,5 +304,16 @@ def gc_stt_getword_timestamp(f_path,voice_file_path='sample.wav'):
             record = pd.Series(transaction, index=stamp.columns)
             stamp.loc[len(stamp)] = record
         
+    # 音声のサンプリングレートを変換した一時ファイルを作成して単語ごとの最大音量をstampに追記
+    wav_path=f"{f_path}/data/textaudio/{v_id}/{v_id}_{x}.wav"
+    wav, sr = librosa.core.load(wav_path,sr=16000, mono=True) 
+    sf.write("test.wav", wav, sr, subtype="PCM_16")
+    dd=pd.DataFrame(wav)
+    stamp['max']=0.0
+    for i in range(len(stamp)):
+        word=stamp.iloc[i,0]
+        start=int(float(stamp.iloc[i,1])*16000)
+        end=int(float(stamp.iloc[i,2])*16000)
+        stamp.iloc[i, 3]=dd[0][start:end].max()
     return stamp
     #https://github.com/GoogleCloudPlatform/python-docs-samples/blob/HEAD/speech/snippets/transcribe_word_time_offsets.py
