@@ -97,7 +97,6 @@ Videoを指定して保存された情報を呼びだす
 ```py
 i = 7 #分割済み音声のリストのindexを指定
 v_id,df_text,v_title=y.df_read(i,df_csv,f_path)
-df_text_to_csv= False #字幕データをDataFrameからcsvに書き出す場合Trueにする
 
 # df_textをcsvファイルに書き出す(確認用)
 df_text.to_csv(f'{f_path}/data/textaudio/dftext.csv')
