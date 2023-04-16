@@ -33,25 +33,7 @@ lab/
 !pip install librosa
 !pip install nltk
 ```
-インポート
-```py
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import os
-import wave
-import sys
-import IPython.display
-from IPython.display import display
-import librosa.display
-import ffmpeg
-from pydub import AudioSegment
-import simpleaudio
-from youtube_transcript_api import YouTubeTranscriptApi
-from yt_dlp import YoutubeDL
-import librosa
-import nltk
-```
+
 このライブラリをインストールしてインポート
 ```py
 !pip install git+https://github.com/treeb23/ytdlpy.git
@@ -138,12 +120,7 @@ y.wav_show(f_path,x,v_id,df_text)
 !pip install google-cloud-speech
 ```
 ```py
-import io
-from google.cloud import speech
-```
-```py
-voice_file_path = 'sample_voice.wav'
-timestamp=y.gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav')
+timestamp=y.gc_stt_getword_timestamp(f_path,v_id,x)
 timestamp
 ```
 
