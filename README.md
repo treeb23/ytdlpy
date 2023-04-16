@@ -19,6 +19,8 @@ lab/
 > ver 0.0.2 2023/04/14 動画と音声を最高品質でダウンロードできるYTDL()
 > 
 > ver 0.0.3 2023/04/15 GoogleCloud Speech-to-Textで音声のタイムスタンプを取得できるgc_stt_getword_timestamp(f_path,voice_file_pathを追加)
+> 
+> ver 0.0.4 2023/04/17 gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav')で最大音量を追記
 
 # 使い方
 まず必要なライブラリのインストール
@@ -141,7 +143,7 @@ from google.cloud import speech
 ```
 ```py
 voice_file_path = 'sample_voice.wav'
-timestamp=y.gc_stt_getword_timestamp(f_path,voice_file_path)
+timestamp=y.gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav')
 timestamp
 ```
 
