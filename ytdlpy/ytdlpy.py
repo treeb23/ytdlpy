@@ -76,11 +76,11 @@ def fromDLtoCSV(f_path,URL): # 字幕ダウンロードから音声分割まで�
 
 
 def TimestampDF(f_path,df_csv,i):
-    v_id,df_text,v_title=y.df_read(i,df_csv,f_path)
+    v_id,df_text,v_title=df_read(i,df_csv,f_path)
     df_txt=df_text
     for x in range(len(df_txt)):
-        _,_,sentence=y.wav_show(f_path,x,v_id,df_txt,view=False)
-        timestamp=y.gc_stt_getword_timestamp(f_path=f_path,v_id=v_id,x=x)
+        _,_,sentence=wav_show(f_path,x,v_id,df_txt,view=False)
+        timestamp=gc_stt_getword_timestamp(f_path=f_path,v_id=v_id,x=x)
         word,pos=lookup_word(timestamp)
         df_txt=addWordtoDF(df_txt,word,pos)
     return df_txt
@@ -331,3 +331,39 @@ def gc_stt_getword_timestamp(f_path,v_id,x):
         stamp.iloc[i, 3]=dd[0][start:end].max()
     return stamp
     #https://github.com/GoogleCloudPlatform/python-docs-samples/blob/HEAD/speech/snippets/transcribe_word_time_offsets.py
+
+    
+def lookup_word(timestamp):
+    try:
+        word=timestamp.iloc[timestamp["max"].idxmax(),0]
+        morph = nltk.word_tokenize(word)
+        pos = nltk.pos_tag(morph)
+        word=pos[0][0]
+        pos=pos[0][1]
+        if word in sentence:
+            pass
+        else:
+            word="---"
+            pos="---"
+        return word,pos
+    except:
+        word="---"
+        pos="---"
+        return word,pos
+    
+
+def addWordtoDF(df_text,word,pos):
+    df=df_text
+    try:
+        df.iloc[x, 3]=word
+        df.iloc[x, 4]=pos
+    except:
+        df['word']=""
+        df['pos']=""
+        df.iloc[x, 3]=word
+        df.iloc[x, 4]=pos
+    return df
+
+
+    
+    
