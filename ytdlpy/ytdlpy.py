@@ -85,6 +85,7 @@ def TimestampDF(f_path,df_csv,i):
         word,pos=lookup_word(timestamp,sentence)
         df_txt=addWordtoDF(df_txt,word,pos,x)
     df_txt.to_csv(f'{f_path}/data/textaudio/{v_id}_text.csv')
+    print(v_id,v_title)
     return df_txt
     
 
