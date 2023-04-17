@@ -83,7 +83,7 @@ def TimestampDF(f_path,df_csv,i):
         _,_,sentence=wav_show(f_path,x,v_id,df_txt,view=False)
         timestamp=gc_stt_getword_timestamp(f_path=f_path,v_id=v_id,x=x)
         word,pos=lookup_word(timestamp)
-        df_txt=addWordtoDF(df_txt,word,pos)
+        df_txt=addWordtoDF(df_txt,word,pos,x)
     return df_txt
     
 
@@ -353,7 +353,7 @@ def lookup_word(timestamp):
         return word,pos
     
 
-def addWordtoDF(df_text,word,pos):
+def addWordtoDF(df_text,word,pos,x):
     df=df_text
     try:
         df.iloc[x, 3]=word
