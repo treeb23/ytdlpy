@@ -100,9 +100,10 @@ df_csv
 音声内の最大音量の単語とその品詞をデータフレームに記録する(動画1つ全体)
 ```py
 i=7
-df_txt=.yTimestampDF(f_path,df_csv,i)
+df_txt=y.TimestampDF(f_path,df_csv,i)
 df_txt
 ```
+
 <details>
 
 <summary>一括実行の内容</summary>
@@ -124,7 +125,7 @@ df_text
 ```py
 y.pyplot_set()
 x=2 #音声の番号を指定する(df_textのindexに対応)
-y.wav_show(f_path,x,v_id,df_text,view=True)
+_,_,sentence=y.wav_show(f_path,x,v_id,df_text,view=True)
 ```
 
 音声のタイムスタンプを取得(GoogleCloud Speech-to-Text APIを利用,DataFrameで返る)
@@ -134,7 +135,7 @@ timestamp
 ```
 最大音量が最も大きな単語を調べて単語が文中にあるときその単語と品詞を返す
 ```py
-word,pos=y.lookup_word(timestamp)
+word,pos=y.lookup_word(timestamp,sentence)
 ```
 dfにword,posを追加する
 ```py
