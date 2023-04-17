@@ -99,9 +99,8 @@ df_csv
 ```
 音声内の最大音量の単語とその品詞をデータフレームに記録する(動画1つ全体)
 ```py
-nltk.download('all',quiet=True)
 i=7
-df_txt=TimestampDF(f_path,df_csv,i)
+df_txt=.yTimestampDF(f_path,df_csv,i)
 df_txt
 ```
 <details>
