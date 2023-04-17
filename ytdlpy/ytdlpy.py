@@ -82,7 +82,7 @@ def TimestampDF(f_path,df_csv,i):
     for x in range(len(df_txt)):
         _,_,sentence=wav_show(f_path,x,v_id,df_txt,view=False)
         timestamp=gc_stt_getword_timestamp(f_path=f_path,v_id=v_id,x=x)
-        word,pos=lookup_word(timestamp)
+        word,pos=lookup_word(timestamp,sentence)
         df_txt=addWordtoDF(df_txt,word,pos,x)
     return df_txt
     
@@ -334,7 +334,7 @@ def gc_stt_getword_timestamp(f_path,v_id,x):
     #https://github.com/GoogleCloudPlatform/python-docs-samples/blob/HEAD/speech/snippets/transcribe_word_time_offsets.py
 
     
-def lookup_word(timestamp):
+def lookup_word(timestamp,sentence):
     try:
         word=timestamp.iloc[timestamp["max"].idxmax(),0]
         morph = nltk.word_tokenize(word)
