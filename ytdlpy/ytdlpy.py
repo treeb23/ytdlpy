@@ -75,6 +75,18 @@ def fromDLtoCSV(f_path,URL): # 字幕ダウンロードから音声分割まで�
     readwrite_csv(f_path,mode=1,v_id=_,v_title=v_title,df_text=df_text)
 
 
+def TimestampDF(f_path,df_csv,i):
+    v_id,df_text,v_title=y.df_read(i,df_csv,f_path)
+    df_txt=df_text
+    for x in range(len(df_txt)):
+        _,_,sentence=y.wav_show(f_path,x,v_id,df_txt,view=False)
+        timestamp=y.gc_stt_getword_timestamp(f_path=f_path,v_id=v_id,x=x)
+        word,pos=lookup_word(timestamp)
+        df_txt=addWordtoDF(df_txt,word,pos)
+    return df_txt
+    
+
+    
 def get_dir_size(path='.'): # ディレクトリのサイズを取得
     print("[get_dir_sizeを実行]")
     if sys.version_info[0]>=3:
@@ -255,7 +267,7 @@ def pyplot_set():
     np.set_printoptions(edgeitems=1)  # 省略時に１つの要素だけ表示
 
 
-def wav_show(f_path,x,v_id,df_text):
+def wav_show(f_path,x,v_id,df_text,view=True):
     print("[wav_showを実行]")
     wav_path=f"{f_path}/data/textaudio/{v_id}/{v_id}_{x}.wav"
     print(f"wav file : {v_id}_{x}.wav")
@@ -265,9 +277,10 @@ def wav_show(f_path,x,v_id,df_text):
     wav_text=df_text.iloc[x][0]
     print(f"wav_text : {wav_text}")
     wav,sr=librosa.load(wav_path,sr=sr) #wavには波形データ、srにはサンプリング周波数が返ってくる
-    plt.figure(figsize=(10,6))
-    librosa.display.waveshow(wav,sr=sr)
-    display(IPython.display.Audio(wav, rate=sr))#音声はBase64エンコーディングしてJupyterNotebookに埋め込まれる
+    if view==True:
+        plt.figure(figsize=(10,6))
+        librosa.display.waveshow(wav,sr=sr)
+        display(IPython.display.Audio(wav, rate=sr))#音声はBase64エンコーディングしてJupyterNotebookに埋め込まれる
     return wav,sr,wav_text
 
 
