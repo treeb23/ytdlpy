@@ -21,6 +21,9 @@ lab/
 > ver 0.0.3 2023/04/15 GoogleCloud Speech-to-Textで音声のタイムスタンプを取得できるgc_stt_getword_timestamp(f_path,voice_file_pathを追加)
 > 
 > ver 0.0.4 2023/04/17 gc_stt_getword_timestamp(f_path,v_id,x,voice_file_path='sample.wav')で最大音量を追記
+>
+> ver 0.0.5 2023/04/17 addWordtoDF(df_txt,word,pos),lookup_word(timestamp)を追加。TimestampDF(f_path,df_csv,i)でCSVに記録された音声一覧から動画を選択して単語と品詞の取得、データフレームへの書き込みを行える。wav_show()に引数viewを追加(音声のグラフ出力が不要な場合Falseとする)。
+
 
 # 使い方
 まず必要なライブラリのインストール
@@ -32,6 +35,7 @@ lab/
 !pip install yt-dlp
 !pip install librosa
 !pip install nltk
+!pip install google-cloud-speech
 ```
 
 このライブラリをインストールしてインポート
@@ -93,6 +97,17 @@ y.create_sep_wav(f_path,_,df_text)
 df_csv=y.readwrite_csv(f_path)
 df_csv
 ```
+音声内の最大音量の単語とその品詞をデータフレームに記録する(動画1つ全体)
+```py
+nltk.download('all',quiet=True)
+i=7
+df_txt=TimestampDF(f_path,df_csv,i)
+df_txt
+```
+<details>
+
+<summary>一括実行の内容</summary>
+
 Videoを指定して保存された情報を呼びだす
 ```py
 i = 7 #分割済み音声のリストのindexを指定
@@ -110,18 +125,26 @@ df_text
 ```py
 y.pyplot_set()
 x=2 #音声の番号を指定する(df_textのindexに対応)
-y.wav_show(f_path,x,v_id,df_text)
+y.wav_show(f_path,x,v_id,df_text,view=True)
 ```
 
 音声のタイムスタンプを取得(GoogleCloud Speech-to-Text APIを利用,DataFrameで返る)
 ```py
-# 初回はインストール必要
-!pip install google-cloud-speech
-```
-```py
 timestamp=y.gc_stt_getword_timestamp(f_path,v_id,x)
 timestamp
 ```
+最大音量が最も大きな単語を調べて単語が文中にあるときその単語と品詞を返す
+```py
+word,pos=y.lookup_word(timestamp)
+```
+dfにword,posを追加する
+```py
+df=y.addWordtoDF(df_txt,word,pos)
+df
+```
+
+
+</details>
 
 最高品質の動画と音声をダウンロード(エラーが発生した場合にerrlistにurlが記録される,errlistが返る)
 ```py
