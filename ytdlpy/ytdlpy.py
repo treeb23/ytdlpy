@@ -13,6 +13,7 @@ from yt_dlp import YoutubeDL
 import librosa
 import soundfile as sf
 import nltk
+nltk.download('all',quiet=True)
 try:
     import ffmpeg
     from pydub import AudioSegment
