@@ -368,5 +368,19 @@ def addWordtoDF(df_text,word,pos,x):
     return df
 
 
+# nltkでtextを形態素解析した状態にしたdfを作る
+def nltk_df_txt(df_txt):
+    df=df_txt
+    df['text_morph']=""
+    for i in range(len(df)):
+        morph = nltk.word_tokenize(df['text'][i])
+        s=" ".join([str(i) for i in morph])
+        df.iloc[i, 5]=s
+    return df
     
-    
+def split_space(df):
+    sentences = []
+    for text in df['text_morph']:
+        text_list = text.split(' ')
+        sentences.append(text_list)
+    return sentences
