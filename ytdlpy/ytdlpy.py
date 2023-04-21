@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import io
+import re
 import wave
 import sys
 import IPython.display
@@ -375,7 +376,7 @@ def nltk_df_txt(df_txt):
     for i in range(len(df)):
         morph = nltk.word_tokenize(df['text'][i])
         s=" ".join([str(i) for i in morph])
-        df.iloc[i, 5]=s
+        df.iloc[i, 5]=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
     return df
     
 def split_space(df):
