@@ -25,6 +25,8 @@ lab/
 > ver 0.0.5 2023/04/17 addWordtoDF(df_txt,word,pos),lookup_word(timestamp)を追加。TimestampDF(f_path,df_csv,i)でCSVに記録された音声一覧から動画を選択して単語と品詞の取得、データフレームへの書き込みを行える。wav_show()に引数viewを追加(音声のグラフ出力が不要な場合Falseとする)。
 > 
 > ver 0.0.6 2023/04/20 nltk_df_txt(df_txts),split_space(df)を追加。
+>
+> ver 0.0.7 2023/04/22 trialLSTM()を追加。
 
 
 # 使い方
