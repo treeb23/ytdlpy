@@ -643,7 +643,7 @@ def nltktagcheck():
           {'品詞タグ': 'WDT', '品詞名（英語）': 'Wh-determiner', '品詞名（日本語）': 'Wh 限定詞'},
           {'品詞タグ': 'WP', '品詞名（英語）': 'Wh-pronoun', '品詞名（日本語）': 'Wh 代名詞'},
           {'品詞タグ': 'WP$', '品詞名（英語）': 'Possessive wh-pronoun', '品詞名（日本語）': '所有 Wh 代名詞'},
-          {'品詞タグ': 'WRB', '品詞名（英語）': 'Wh-adverb', '品詞名（日本語）': 'Wh 副詞'},
+          {'品詞タグ': 'WRB', '品詞名（英語）': 'Wh-adverb', '品詞名（日本語）': 'Wh 副詞'}]
     )
     return nltkdf
 
