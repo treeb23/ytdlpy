@@ -480,8 +480,6 @@ def set_trialLSTM(f_path, df, wordindex, ep=50, embdim=100, trainrate=0.7, model
     loss_function = nn.NLLLoss()
     # 最適化の手法はSGD
     optimizer = optim.SGD(model.parameters(), lr=0.04)
-    
-    torch.save(model, f'{f_path}/{modelpath}.pth')
 
     # 各エポックの合計loss値を格納する
     losses = []
@@ -540,6 +538,8 @@ def set_trialLSTM(f_path, df, wordindex, ep=50, embdim=100, trainrate=0.7, model
             if predict == answer:
                 a += 1
     print("predict(train) : ", a / traindata_num)
+    
+    torch.save(model, f'{f_path}/{modelpath}.pth')
     
     return losses
 
