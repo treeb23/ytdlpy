@@ -543,7 +543,7 @@ def set_trialLSTM(f_path, df, wordindex, ep=50, embdim=100, trainrate=0.7, model
     
     return losses
 
-def testmodel(f_path,df,wordindex,modelpath,text):
+def testmodel(f_path,df,wordindex,modelpath,embdim=100,text=""):
     categories = df['pos'].unique()
     word2index=wordindex
     
@@ -584,7 +584,16 @@ def testmodel(f_path,df,wordindex,modelpath,text):
             tag_scores = self.softmax(tag_space)
             return tag_scores
     
-    model = LSTMClassifier()
+    # 単語のベクトル次元数
+    EMBEDDING_DIM = embdim
+    # 隠れ層の次元数
+    HIDDEN_DIM = 128
+    # データ全体の単語数
+    VOCAB_SIZE = len(word2index)
+    # 分類先のカテゴリの数
+    TAG_SIZE = len(categories)
+    
+    model = LSTMClassifier(EMBEDDING_DIM, HIDDEN_DIM, VOCAB_SIZE, TAG_SIZE)
     model.load_state_dict(torch.load(f'{f_path}/{modelpath}.pth'))
     with torch.no_grad():
         # テストデータの予測
