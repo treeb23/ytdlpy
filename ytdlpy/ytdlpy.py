@@ -409,7 +409,7 @@ def wordtoindex(sentences):
 
 # LSTM
 # (参考) https://qiita.com/m__k/items/841950a57a0d7ff05506
-def set_trialLSTM(df,wordindex,ep=50,embdim=100,trainrate=0.7,modelpath=modelpath):
+def set_trialLSTM(df,wordindex,ep=50,embdim=100,trainrate=0.7,modelpath="model"):
     
     categories = df['pos'].unique()
     print(categories)
