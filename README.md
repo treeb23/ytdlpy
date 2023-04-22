@@ -26,7 +26,9 @@ lab/
 > 
 > ver 0.0.6 2023/04/20 nltk_df_txt(df_txts),split_space(df)を追加。
 >
-> ver 0.0.7 2023/04/22 trialLSTM()を追加。
+> ver 0.0.7 2023/04/22 set_trialLSTM()を追加。
+>
+> ver 0.0.8 2023/04/22 testmodel()を追加。
 
 
 # 使い方
