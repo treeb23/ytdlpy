@@ -394,7 +394,7 @@ def split_space(df):
 
 # LSTM
 # (参考) https://qiita.com/m__k/items/841950a57a0d7ff05506
-def trialLSTM(df,sentences):
+def trialLSTM(df,sentences,ep=50,embdim=100,trainrate=0.7):
     categories = df['pos'].unique()
     print(categories)
     
@@ -453,11 +453,11 @@ def trialLSTM(df,sentences):
     # 学習
     from sklearn.model_selection import train_test_split
     import torch.optim as optim
-    # 元データを学習:テスト=7:3に分ける
-    traindata, testdata = train_test_split(df, train_size=0.7)
+    # 元データを学習:テストに分ける、trainrate=0.7なら7:3
+    traindata, testdata = train_test_split(df, train_size=trainrate)
 
     # 単語のベクトル次元数
-    EMBEDDING_DIM = 100
+    EMBEDDING_DIM = embdim
     # 隠れ層の次元数
     HIDDEN_DIM = 128
     # データ全体の単語数
@@ -473,7 +473,7 @@ def trialLSTM(df,sentences):
 
     # 各エポックの合計loss値を格納する
     losses = []
-    for epoch in range(50):
+    for epoch in range(ep):
         all_loss = 0
         for title, cat in zip(traindata["text_morph"], traindata["pos"]):
             # モデルが持ってる勾配の情報をリセット
