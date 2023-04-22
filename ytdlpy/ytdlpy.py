@@ -601,5 +601,6 @@ def testmodel(f_path,df,wordindex,modelpath,embdim=100,text=""):
         out = model(inputs)
         # outの一番大きい要素を予測結果をする
         _, predict = torch.max(out, 1)
-    print("predict(test) : ", predict)
-    return predict,out
+    x=int(predict[0].to('cpu').detach().numpy().copy())
+    print("predict(test) : ", categories[x])
+    return categories[x],out
