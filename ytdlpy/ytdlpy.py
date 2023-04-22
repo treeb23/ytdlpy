@@ -604,3 +604,47 @@ def testmodel(f_path,df,wordindex,modelpath,embdim=100,text=""):
     x=int(predict[0].to('cpu').detach().numpy().copy())
     print("predict(test) : ", categories[x])
     return categories[x],out
+
+
+def nltktagcheck():
+    nltkdf = pd.DataFrame(
+        data=[{'品詞タグ': 'CC', '品詞名（英語）': 'Coordinating conjunction', '品詞名（日本語）': '調整接続詞'},
+          {'品詞タグ': 'CD', '品詞名（英語）': 'Cardinal number', '品詞名（日本語）': '基数'},
+          {'品詞タグ': 'DT', '品詞名（英語）': 'Determiner', '品詞名（日本語）': '限定詞'},
+          {'品詞タグ': 'EX', '品詞名（英語）': 'Existential there', '品詞名（日本語）': '存在を表す there'},
+          {'品詞タグ': 'FW', '品詞名（英語）': 'Foreign word', '品詞名（日本語）': '外国語'},
+          {'品詞タグ': 'IN', '品詞名（英語）': 'Preposition or subordinating conjunction', '品詞名（日本語）': '前置詞または従属接続詞'},
+          {'品詞タグ': 'JJ', '品詞名（英語）': 'Adjective', '品詞名（日本語）': '形容詞'},
+          {'品詞タグ': 'JJR', '品詞名（英語）': 'Adjective, comparative', '品詞名（日本語）': '形容詞 (比較級)'},
+          {'品詞タグ': 'JJS', '品詞名（英語）': 'Adjective, superlative', '品詞名（日本語）': '形容詞 (最上級)'},
+          {'品詞タグ': 'LS', '品詞名（英語）': 'List item marker', '品詞名（日本語）': '-'},
+          {'品詞タグ': 'MD', '品詞名（英語）': 'Modal', '品詞名（日本語）': '法'},
+          {'品詞タグ': 'NN', '品詞名（英語）': 'Noun, singular or mass', '品詞名（日本語）': '名詞'},
+          {'品詞タグ': 'NNS', '品詞名（英語）': 'Noun, plural', '品詞名（日本語）': '名詞 (複数形)'},
+          {'品詞タグ': 'NNP', '品詞名（英語）': 'Proper noun, singular', '品詞名（日本語）': '固有名詞'},
+          {'品詞タグ': 'NNPS', '品詞名（英語）': 'Proper noun, plural', '品詞名（日本語）': '固有名詞 (複数形)'},
+          {'品詞タグ': 'PDT', '品詞名（英語）': 'Predeterminer', '品詞名（日本語）': '前限定辞'},
+          {'品詞タグ': 'POS', '品詞名（英語）': 'Possessive ending', '品詞名（日本語）': '所有格の終わり'},
+          {'品詞タグ': 'PRP', '品詞名（英語）': 'Personal pronoun', '品詞名（日本語）': '人称代名詞 (PP)'},
+          {'品詞タグ': 'PRP$', '品詞名（英語）': 'Possessive pronoun', '品詞名（日本語）': '所有代名詞 (PP$)'},
+          {'品詞タグ': 'RB', '品詞名（英語）': 'Adverb', '品詞名（日本語）': '副詞'},
+          {'品詞タグ': 'RBR', '品詞名（英語）': 'Adverb, comparative', '品詞名（日本語）': '副詞 (比較級)'},
+          {'品詞タグ': 'RBS', '品詞名（英語）': 'Adverb, superlative', '品詞名（日本語）': '副詞 (最上級)'},
+          {'品詞タグ': 'RP', '品詞名（英語）': 'Particle', '品詞名（日本語）': '不変化詞'},
+          {'品詞タグ': 'SYM', '品詞名（英語）': 'Symbol', '品詞名（日本語）': '記号'},
+          {'品詞タグ': 'TO', '品詞名（英語）': 'to', '品詞名（日本語）': '前置詞 to'},
+          {'品詞タグ': 'UH', '品詞名（英語）': 'Interjection', '品詞名（日本語）': '感嘆詞'},
+          {'品詞タグ': 'VB', '品詞名（英語）': 'Verb, base form', '品詞名（日本語）': '動詞 (原形)'},
+          {'品詞タグ': 'VBD', '品詞名（英語）': 'Verb, past tense', '品詞名（日本語）': '動詞 (過去形)'},
+          {'品詞タグ': 'VBG', '品詞名（英語）': 'Verb, gerund or present participle', '品詞名（日本語）': '動詞 (動名詞または現在分詞)'},
+          {'品詞タグ': 'VBN', '品詞名（英語）': 'Verb, past participle', '品詞名（日本語）': '動詞 (過去分詞)'},
+          {'品詞タグ': 'VBP', '品詞名（英語）': 'Verb, non-3rd person singular present', '品詞名（日本語）': '動詞 (三人称単数以外の現在形)'},
+          {'品詞タグ': 'VBZ', '品詞名（英語）': 'Verb, 3rd person singular present', '品詞名（日本語）': '動詞 (三人称単数の現在形)'},
+          {'品詞タグ': 'WDT', '品詞名（英語）': 'Wh-determiner', '品詞名（日本語）': 'Wh 限定詞'},
+          {'品詞タグ': 'WP', '品詞名（英語）': 'Wh-pronoun', '品詞名（日本語）': 'Wh 代名詞'},
+          {'品詞タグ': 'WP$', '品詞名（英語）': 'Possessive wh-pronoun', '品詞名（日本語）': '所有 Wh 代名詞'},
+          {'品詞タグ': 'WRB', '品詞名（英語）': 'Wh-adverb', '品詞名（日本語）': 'Wh 副詞'},
+    )
+    return nltkdf
+
+
