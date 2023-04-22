@@ -19,6 +19,10 @@ import torch
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
 import torch.optim as optim
+np.random.seed(1)
+torch.cuda.manual_seed_all(1)
+torch.cuda.manual_seed(1)
+torch.manual_seed(1)
 try:
     import ffmpeg
     from pydub import AudioSegment
@@ -392,18 +396,25 @@ def split_space(df):
         sentences.append(text_list)
     return sentences
 
+
+def wordtoindex(sentences):
+    wordindex = {}
+    for text in sentences:
+        for word in text:
+            if word in wordindex: continue
+            wordindex[word] = len(wordindex)
+    print("vocabsize:",len(wordindex))
+    return wordindex
+
+
 # LSTM
 # (参考) https://qiita.com/m__k/items/841950a57a0d7ff05506
-def trialLSTM(df,sentences,ep=50,embdim=100,trainrate=0.7):
+def set_trialLSTM(df,wordindex,ep=50,embdim=100,trainrate=0.7,modelpath=modelpath):
+    
     categories = df['pos'].unique()
     print(categories)
     
-    word2index = {}
-    for text in sentences:
-        for word in text:
-            if word in word2index: continue
-            word2index[word] = len(word2index)
-    print("vocabsize:",len(word2index))
+    word2index=wordindex
     
     def sentence2index(sentence):
         sentence=sentence.split(' ')
@@ -470,6 +481,8 @@ def trialLSTM(df,sentences,ep=50,embdim=100,trainrate=0.7):
     loss_function = nn.NLLLoss()
     # 最適化の手法はSGD
     optimizer = optim.SGD(model.parameters(), lr=0.04)
+    
+    torch.save(model, f'{f_path}/{modelpath}.pth')
 
     # 各エポックの合計loss値を格納する
     losses = []
@@ -530,3 +543,24 @@ def trialLSTM(df,sentences,ep=50,embdim=100,trainrate=0.7):
     print("predict(train) : ", a / traindata_num)
     
     return losses
+
+def testmodel(f_path,df,wordindex,modelpath,text):
+    categories = df['pos'].unique()
+    word2index=wordindex
+    
+    morph = nltk.word_tokenize(text)
+    s=" ".join([str(i) for i in morph])
+    text=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
+    
+    def sentence2index(sentence):
+        sentence=sentence.split(' ')
+        return torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
+    model = torch.load(f'{f_path}/{modelpath}.pth')
+    with torch.no_grad():
+        # テストデータの予測
+        inputs = sentence2index(text)
+        out = model(inputs)
+        # outの一番大きい要素を予測結果をする
+        _, predict = torch.max(out, 1)
+    print("predict(test) : ", predict)
+    return predict,out
