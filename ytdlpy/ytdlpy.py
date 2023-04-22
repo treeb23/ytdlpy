@@ -406,6 +406,7 @@ def trialLSTM(df,sentences):
     print("vocabsize:",len(word2index))
     
     def sentence2index(sentence):
+        sentence=sentence.split(' ')
         return torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
     
     # nn.Moduleを継承して新しいクラスを作る。決まり文句
