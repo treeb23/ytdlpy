@@ -547,13 +547,17 @@ def testmodel(f_path,df,wordindex,modelpath,embdim=100,text=""):
     categories = df['pos'].unique()
     word2index=wordindex
     
+    
     morph = nltk.word_tokenize(text)
     s=" ".join([str(i) for i in morph])
     text=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
     
     def sentence2index(sentence):
         sentence=sentence.split(' ')
-        return torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
+        for w in sentence:
+            word2index.setdefault(w, len(word2index))
+        t=torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
+        return t
     
     class LSTMClassifier(nn.Module):
         # モデルで使う各ネットワークをコンストラクタで定義
