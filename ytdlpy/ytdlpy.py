@@ -602,8 +602,8 @@ def testmodel(f_path,df,wordindex,modelpath,embdim=100,text=""):
         # outの一番大きい要素を予測結果をする
         _, predict = torch.max(out, 1)
     x=int(predict[0].to('cpu').detach().numpy().copy())
-    print("predict(test) : ", categories[x])
-    return categories[x],out
+    predict=categories[x]
+    return predict,out
 
 
 def nltktagcheck():
@@ -647,4 +647,15 @@ def nltktagcheck():
     )
     return nltkdf
 
-
+def display_testresult(text,predict,out):
+    morph = nltk.word_tokenize(text)
+    pos = nltk.pos_tag(morph)
+    print(pos)
+    print(predict)
+    n = nltktagcheck()[nltktagcheck()['品詞タグ'] == predict]
+    def softmax(x):
+        u = np.sum(np.exp(x))
+        return np.exp(x)/u
+    np.set_printoptions(suppress=True)
+    s = softmax(out.numpy())[0]*100
+    return n,s
