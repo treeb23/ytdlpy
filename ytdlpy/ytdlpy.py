@@ -554,8 +554,8 @@ def testmodel(f_path,df,wordindex,modelpath,embdim=100,text=""):
     
     def sentence2index(sentence):
         sentence=sentence.split(' ')
-        for w in sentence:
-            word2index.setdefault(w, len(word2index))
+        #for w in sentence:
+        #    word2index.setdefault(w, len(word2index))
         t=torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
         return t
     
