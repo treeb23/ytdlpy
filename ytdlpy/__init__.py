@@ -1,2 +1,2 @@
-from ytdlpy.ytdlpy import * as y
-from ytdlpy.model import * as ym
+from ytdlpy.ytdlpy import *
+from ytdlpy.model import *
