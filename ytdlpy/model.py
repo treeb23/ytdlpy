@@ -283,22 +283,14 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
     categories = df['pos'].unique()
     print(categories)
     
-    word2index=wordindex
-    
-    def sentence2index(sentence):
-        sentence=sentence.split(' ')
-        return torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
-    
     # nn.Moduleを継承して新しいクラスを作る。決まり文句
     class LSTMClassifier(nn.Module):
         # モデルで使う各ネットワークをコンストラクタで定義
-        def __init__(self, embedding_dim, hidden_dim, vocab_size, tagset_size):
+        def __init__(self, embedding_dim, hidden_dim, tagset_size):
             # 親クラスのコンストラクタ。決まり文句
             super(LSTMClassifier, self).__init__()
             # 隠れ層の次元数。これは好きな値に設定しても行列計算の過程で出力には出てこないので。
             self.hidden_dim = hidden_dim
-            # インプットの単語をベクトル化するために使う
-            self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
             # LSTMの隠れ層。これ１つでOK。超便利。
             self.lstm = nn.LSTM(embedding_dim, hidden_dim)
             # LSTMの出力を受け取って全結合してsoftmaxに食わせるための１層のネットワーク
@@ -307,12 +299,10 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
             self.softmax = nn.LogSoftmax(dim=1)
 
         # 順伝播処理はforward関数に記載
-        def forward(self, sentence):
-            # 文章内の各単語をベクトル化して出力。2次元のテンソル
-            embeds = self.word_embeddings(sentence)
+        def forward(self, t):
             # 2次元テンソルをLSTMに食わせられる様にviewで３次元テンソルにした上でLSTMへ流す。
             # 上記で説明した様にmany to oneのタスクを解きたいので、第二戻り値だけ使う。
-            _, lstm_out = self.lstm(embeds.view(len(sentence), 1, -1))
+            _, lstm_out = self.lstm(t.view(len(t), 1, -1))
             # lstm_out[0]は３次元テンソルになってしまっているので2次元に調整して全結合。
             tag_space = self.hidden2tag(lstm_out[0].view(-1, self.hidden_dim))
             # softmaxに食わせて、確率として表現
@@ -339,12 +329,10 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
     EMBEDDING_DIM = embdim
     # 隠れ層の次元数
     HIDDEN_DIM = 128
-    # データ全体の単語数
-    VOCAB_SIZE = len(word2index)
     # 分類先のカテゴリの数
     TAG_SIZE = len(categories)
     # モデル宣言
-    model = LSTMClassifier(EMBEDDING_DIM, HIDDEN_DIM, VOCAB_SIZE, TAG_SIZE)
+    model = LSTMClassifier(EMBEDDING_DIM, HIDDEN_DIM, TAG_SIZE)
     # 損失関数はNLLLoss()
     loss_function = nn.NLLLoss()
     # 最適化の手法はSGD
@@ -357,10 +345,17 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
         for title, cat in zip(traindata["text_morph"], traindata["pos"]):
             # モデルが持ってる勾配の情報をリセット
             model.zero_grad()
-            # 文章を単語IDの系列に変換（modelに食わせられる形に変換）
-            inputs = sentence2index(title)
+            # 文章をベクトルに変換
+            input = title.split()
+            x=[]
+            for i in range(len(input)):
+                try:
+                    x.append(wv[input[i]])
+                except:
+                    x.append(np.zeros(300, dtype = float))
+            t=torch.tensor(x)
             # 順伝播の結果を受け取る
-            out = model(inputs)
+            out = model(t)
             # 正解カテゴリをテンソル化
             answer = category2tensor(cat)
             # 正解とのlossを計算
@@ -384,8 +379,15 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
     with torch.no_grad():
         for title, category in zip(testdata["text_morph"], testdata["pos"]):
             # テストデータの予測
-            inputs = sentence2index(title)
-            out = model(inputs)
+            input = title.split()
+            x=[]
+            for i in range(len(input)):
+                try:
+                    x.append(wv[input[i]])
+                except:
+                    x.append(np.zeros(300, dtype = float))
+            t=torch.tensor(x)
+            out = model(t)
 
             # outの一番大きい要素を予測結果をする
             _, predict = torch.max(out, 1)
@@ -400,8 +402,16 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
     a = 0
     with torch.no_grad():
         for title, category in zip(traindata["text_morph"], traindata["pos"]):
-            inputs = sentence2index(title)
-            out = model(inputs)
+            input = title.split()
+            x=[]
+            for i in range(len(input)):
+                try:
+                    x.append(wv[input[i]])
+                except:
+                    x.append(np.zeros(300, dtype = float))
+            t=torch.tensor(x)
+            # 順伝播の結果を受け取る
+            out = model(t)
             _, predict = torch.max(out, 1)
             answer = category2tensor(category)
             if predict == answer:
@@ -421,22 +431,14 @@ def test_trialLSTM2(f_path,df,wordindex,modelpath,embdim=300,text=""):
     s=" ".join([str(i) for i in morph])
     text=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
     
-    def sentence2index(sentence):
-        sentence=sentence.split(' ')
-        #for w in sentence:
-        #    word2index.setdefault(w, len(word2index))
-        t=torch.tensor([word2index[w] for w in sentence], dtype=torch.long)
-        return t
     
     class LSTMClassifier(nn.Module):
         # モデルで使う各ネットワークをコンストラクタで定義
-        def __init__(self, embedding_dim, hidden_dim, vocab_size, tagset_size):
+        def __init__(self, embedding_dim, hidden_dim, tagset_size):
             # 親クラスのコンストラクタ。決まり文句
             super(LSTMClassifier, self).__init__()
             # 隠れ層の次元数。これは好きな値に設定しても行列計算の過程で出力には出てこないので。
             self.hidden_dim = hidden_dim
-            # インプットの単語をベクトル化するために使う
-            self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
             # LSTMの隠れ層。これ１つでOK。超便利。
             self.lstm = nn.LSTM(embedding_dim, hidden_dim)
             # LSTMの出力を受け取って全結合してsoftmaxに食わせるための１層のネットワーク
@@ -445,12 +447,10 @@ def test_trialLSTM2(f_path,df,wordindex,modelpath,embdim=300,text=""):
             self.softmax = nn.LogSoftmax(dim=1)
 
         # 順伝播処理はforward関数に記載
-        def forward(self, sentence):
-            # 文章内の各単語をベクトル化して出力。2次元のテンソル
-            embeds = self.word_embeddings(sentence)
+        def forward(self, t):
             # 2次元テンソルをLSTMに食わせられる様にviewで３次元テンソルにした上でLSTMへ流す。
             # 上記で説明した様にmany to oneのタスクを解きたいので、第二戻り値だけ使う。
-            _, lstm_out = self.lstm(embeds.view(len(sentence), 1, -1))
+            _, lstm_out = self.lstm(t.view(len(t), 1, -1))
             # lstm_out[0]は３次元テンソルになってしまっているので2次元に調整して全結合。
             tag_space = self.hidden2tag(lstm_out[0].view(-1, self.hidden_dim))
             # softmaxに食わせて、確率として表現
@@ -461,17 +461,23 @@ def test_trialLSTM2(f_path,df,wordindex,modelpath,embdim=300,text=""):
     EMBEDDING_DIM = embdim
     # 隠れ層の次元数
     HIDDEN_DIM = 128
-    # データ全体の単語数
-    VOCAB_SIZE = len(word2index)
     # 分類先のカテゴリの数
     TAG_SIZE = len(categories)
     
-    model = LSTMClassifier(EMBEDDING_DIM, HIDDEN_DIM, VOCAB_SIZE, TAG_SIZE)
+    model = LSTMClassifier(EMBEDDING_DIM, HIDDEN_DIM, TAG_SIZE)
     model.load_state_dict(torch.load(f'{f_path}/{modelpath}.pth'))
     with torch.no_grad():
         # テストデータの予測
-        inputs = sentence2index(text)
-        out = model(inputs)
+        input = title.split()
+        x=[]
+        for i in range(len(input)):
+            try:
+                x.append(wv[input[i]])
+            except:
+                x.append(np.zeros(300, dtype = float))
+        t=torch.tensor(x)
+        # 順伝播の結果を受け取る
+        out = model(t)
         # outの一番大きい要素を予測結果をする
         _, predict = torch.max(out, 1)
     x=int(predict[0].to('cpu').detach().numpy().copy())
