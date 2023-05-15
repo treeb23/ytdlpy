@@ -352,7 +352,7 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
                 try:
                     x.append(wv[input[i]])
                 except:
-                    x.append(np.zeros(300, dtype = float))
+                    x.append(np.zeros(embdim, dtype = float))
             t=torch.tensor(x)
             # 順伝播の結果を受け取る
             out = model(t)
@@ -385,7 +385,7 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
                 try:
                     x.append(wv[input[i]])
                 except:
-                    x.append(np.zeros(300, dtype = float))
+                    x.append(np.zeros(embdim, dtype = float))
             t=torch.tensor(x)
             out = model(t)
 
@@ -408,7 +408,7 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
                 try:
                     x.append(wv[input[i]])
                 except:
-                    x.append(np.zeros(300, dtype = float))
+                    x.append(np.zeros(embdim, dtype = float))
             t=torch.tensor(x)
             # 順伝播の結果を受け取る
             out = model(t)
@@ -474,7 +474,7 @@ def test_trialLSTM2(f_path,df,wordindex,modelpath,embdim=300,text=""):
             try:
                 x.append(wv[input[i]])
             except:
-                x.append(np.zeros(300, dtype = float))
+                x.append(np.zeros(embdim, dtype = float))
         t=torch.tensor(x)
         # 順伝播の結果を受け取る
         out = model(t)
