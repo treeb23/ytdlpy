@@ -302,7 +302,7 @@ def set_trialLSTM2(f_path, df, wordindex, ep=50, embdim=300, trainrate=0.7, mode
         def forward(self, t):
             # 2次元テンソルをLSTMに食わせられる様にviewで３次元テンソルにした上でLSTMへ流す。
             # 上記で説明した様にmany to oneのタスクを解きたいので、第二戻り値だけ使う。
-            _, lstm_out = self.lstm(t.view(len(t[0]), 1, -1))
+            _, lstm_out = self.lstm(t.view(len(t[:,0]), 1, -1))
             # lstm_out[0]は３次元テンソルになってしまっているので2次元に調整して全結合。
             tag_space = self.hidden2tag(lstm_out[0].view(-1, self.hidden_dim))
             # softmaxに食わせて、確率として表現
@@ -450,7 +450,7 @@ def test_trialLSTM2(f_path,df,wordindex,modelpath,embdim=300,text=""):
         def forward(self, t):
             # 2次元テンソルをLSTMに食わせられる様にviewで３次元テンソルにした上でLSTMへ流す。
             # 上記で説明した様にmany to oneのタスクを解きたいので、第二戻り値だけ使う。
-            _, lstm_out = self.lstm(t.view(len(t[0]), 1, -1))
+            _, lstm_out = self.lstm(t.view(len(t[:,0]), 1, -1))
             # lstm_out[0]は３次元テンソルになってしまっているので2次元に調整して全結合。
             tag_space = self.hidden2tag(lstm_out[0].view(-1, self.hidden_dim))
             # softmaxに食わせて、確率として表現
