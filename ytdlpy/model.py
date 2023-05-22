@@ -332,11 +332,11 @@ def makedf_word_maxvol(i,df_csv,f_path):
         if x==0:
             _,_,sentence=y.wav_show(f_path,x,v_id,df_text,view=False)
             timestamp=y.gc_stt_getword_timestamp(f_path,v_id,x)
-            df=wordvoldf(i,v_id,x,sentence,max,timestamp)
+            df=wordvoldf(i,v_id,x,sentence,timestamp)
         else:
             _,_,sentence=y.wav_show(f_path,x,v_id,df_text,view=False)
             timestamp=y.gc_stt_getword_timestamp(f_path,v_id,x)
-            df=pd.concat([df,wordvoldf(i,v_id,x,sentence,max,timestamp)])
+            df=pd.concat([df,wordvoldf(i,v_id,x,sentence,timestamp)])
 
     df=df.reset_index(drop=True)
     try:
