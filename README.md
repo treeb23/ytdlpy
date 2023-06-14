@@ -35,6 +35,8 @@ lab/
 > ver 0.0.10 2023/05/22 modelにw2v(linear)を追加
 >
 > ver 0.0.11 2023/06/08 nn.Embeddingでベクトル化して入力した文に対する最大音量単語の品詞を返すモデルをnnemblstm.pyに分離
+> s
+> ver 0.0.12 2023/06/15 ytdlpy.ytdlpyに集約。データのパスを変更
 
 
 # 使い方
@@ -48,11 +50,12 @@ lab/
 !pip install librosa
 !pip install nltk
 !pip install google-cloud-speech
+!pip install transformers
 ```
 
 このライブラリをインストールしてインポート
 ```py
-!pip install git+https://github.com/treeb23/ytdlpy.git
+!pip install --upgrade git+https://github.com/treeb23/ytdlpy.git
 import ytdlpy as y
 ```
 最初に作業ディレクトリをfilepathに設定する
