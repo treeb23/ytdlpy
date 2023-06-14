@@ -889,3 +889,63 @@ def test_linearw2v_all(x_data,y_data,model):
         lpd.append(y_pred - D)
     return ld,lp,lpd
 
+# 動画の全文の単語の最大音量や音声のタイムスタンプを含んだデータフレームを保存する
+def make_fullinfo_df(f_path,i):
+    from google.cloud import speech
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = api_key_path = f'{f_path}/code/secretkey.json'
+    client = speech.SpeechClient()
+    df_csv=readwrite_csv(f_path)
+    v_id,df_text,v_title=df_read(i,df_csv,f_path)
+    for x in range(len(df_text)):
+        sentence=wav_show(f_path,x,v_id,df_text,view=False)[2]
+        starttime=df_text["start"][x]
+        duration=df_text["duration"][x]
+        wav_path=f"{f_path}/data/textaudio/wav/{v_id}/{v_id}_{x}.wav"
+        wav, sr = librosa.core.load(wav_path,sr=16000, mono=True)
+        sf.write("test.wav", wav, sr, subtype="PCM_16")
+        dd=pd.DataFrame(wav)
+
+        with io.open("test.wav", "rb") as audio_file:
+            content = audio_file.read()
+
+        audio = speech.RecognitionAudio(content=content)
+        config = speech.RecognitionConfig(
+            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=16000,
+            language_code="en-US",
+            enable_word_time_offsets=True,
+        )
+
+        response = client.recognize(config=config, audio=audio)
+
+        cols = ["video_num","video_id","sentence_num","sentence","starttime","duration","word_starttime","word_endtime","word_num","word"]
+        stamp = pd.DataFrame(index=[], columns=cols)
+
+        for result in response.results:
+            alternative = result.alternatives[0]
+            print("{}".format(alternative.transcript))
+            n=0
+
+            for word_info in alternative.words:
+                word = word_info.word
+                start_time = word_info.start_time
+                end_time = word_info.end_time
+                transaction = [f'{i}',f'{v_id}',f'{x}',f'{sentence}',f'{starttime}',f'{duration}',f'{start_time.total_seconds()}',f'{end_time.total_seconds()}',f'{n}',f'{word}']
+                record = pd.Series(transaction, index=stamp.columns)
+                stamp.loc[len(stamp)] = record
+                n=n+1
+
+        # 単語ごとの最大音量をstampに追記
+        stamp['maxvol']=0.0
+        for n in range(len(stamp)):
+            start=int(float(stamp.iloc[n,6])*16000)
+            end=int(float(stamp.iloc[n,7])*16000)
+            stamp.iloc[n, 10]=dd[0][start:end].max()
+        if x==0:
+            df=stamp
+        else:
+            df=pd.concat([df,stamp])
+        df=df.reset_index(drop=True)
+    df.to_csv(f'{f_path}/data/textaudio/csv/{v_id}_fullinfo.csv')
+    return df
+
