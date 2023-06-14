@@ -5,3 +5,5 @@ youtube-transcript-api
 yt-dlp
 librosa
 nltk
+google-cloud-speech
+transformers
