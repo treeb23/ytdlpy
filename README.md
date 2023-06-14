@@ -10,7 +10,9 @@ lab/
 　│　└ ().ipynb
 　└ data/
 　 　└ textaudio/
+    　 └ csv/
     　 └ dst/
+    　 └ wav/
 ```
 
 
