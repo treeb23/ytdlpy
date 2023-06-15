@@ -39,6 +39,8 @@ lab/
 > ver 0.0.11 2023/06/08 nn.Embeddingでベクトル化して入力した文に対する最大音量単語の品詞を返すモデルをnnemblstm.pyに分離
 > 
 > ver 0.0.12 2023/06/15 ytdlpy.ytdlpyに集約。データのパスを変更
+> 
+> ver 0.0.13 2023/06/16 crcsv,plotvol,plotwavを追加
 
 
 # 使い方
