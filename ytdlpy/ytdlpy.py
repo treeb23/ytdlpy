@@ -949,3 +949,60 @@ def make_fullinfo_df(f_path,i):
     df.to_csv(f'{f_path}/data/textaudio/csv/{v_id}_fullinfo.csv')
     return df
 
+# 動画音声ダウンロードからデータセット用csv作成まで
+def crcsv(URL,bt=True,bw=True,bf=True):
+    """if make_df(True or False) bt:text.csv, bw:text(word).csv, bf:fullinfo.csv"""
+    i=""
+    df_csv=readwrite_csv(f_path)
+    if not url_check(f_path,yt_totext(URL)[4])==False:
+        fromDLtoCSV(f_path,URL) # URLからdst,音声データを作成してtmp.csvを更新
+        df_csv=readwrite_csv(f_path)
+        i=len(df_csv)-1 # 一番最新のvideoの番号
+        if bt==True:
+            df_txt=TimestampDF(f_path,df_csv,i) # {v_id}_text.csv を作成
+        if bw==True:
+            makedf_word_maxvol(i,df_csv,f_path) # {v_id}_text(word).csv を作成
+        if bf==True:
+            make_fullinfo_df(f_path,i)
+    return i,df_csv
+
+# df_fullinfoから音量分布グラフを生成
+def plotvol(i,df_csv):
+    if i=="":
+        return False
+    d=df_read(i,df_csv,f_path)
+    txt=pd.read_csv(f'{f_path}/data/textaudio/csv/{d[0]}_fullinfo.csv', index_col=0)
+    v_id,df_text,v_title=d
+    dfpl=txt
+    w=[]
+    for c in range(len(dfpl)):
+        if dfpl["maxvol"][c]==0.0:
+            w.append(c)
+    dfpl=dfpl.drop(index=dfpl.index[w])
+    plt.figure()
+    plt.rcParams["figure.figsize"] = (7, 4)
+    plt.xlim(0, 1)
+    save_path=f"{f_path}/data/textaudio/img/{i}.png"
+    plot = sns.histplot(dfpl.iloc[:,10], bins=100)
+    plot.set_title(f"{v_title}", fontsize = 6)
+    figure = plot.get_figure()
+    figure.savefig(save_path)
+
+# 単語の音声波形を表示
+def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv):
+    i=video_num
+    x=sentence_num
+    w=word_num
+    v_id=df_csv.iloc[i][0]
+    wav_path=f"{f_path}/data/textaudio/wav/{v_id}/{v_id}_{x}.wav"
+    wav, sr = librosa.core.load(wav_path,sr=16000, mono=True)
+    txt=pd.read_csv(f'{f_path}/data/textaudio/csv/{v_id}_fullinfo.csv', index_col=0)
+    m=txt[txt["sentence_num"]==x]
+    start=int(float(m["word_starttime"][w])*16000)
+    end=int(float(m["word_endtime"][w])*16000)
+    print(f"{v_id}/{v_id}_{x}.wav, {start/16000}~{end/16000}[s]")
+    p=pd.DataFrame(wav)[0][start:end]
+    plt.plot(p)
+    plt.show()
+    return m,p,v_id # m:指定した文のdf, p:単語の音量配列
+
