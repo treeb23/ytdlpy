@@ -967,7 +967,7 @@ def crcsv(URL,bt=True,bw=True,bf=True):
     return i,df_csv
 
 # df_fullinfoから音量分布グラフを生成
-def plotvol(i,df_csv):
+def plotvol(i,df_csv,f_path):
     if i=="":
         return False
     d=df_read(i,df_csv,f_path)
