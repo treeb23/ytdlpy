@@ -41,6 +41,8 @@ lab/
 > ver 0.0.12 2023/06/15 ytdlpy.ytdlpyに集約。データのパスを変更
 > 
 > ver 0.0.13 2023/06/16 crcsv,plotvol,plotwavを追加
+> 
+> ver 0.0.14 2023/06/16 viewdist,checkdistover_count,checkdistoverを追加
 
 
 # 使い方
