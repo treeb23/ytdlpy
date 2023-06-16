@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from fitter import Fitter
 import os
 import io
 import re
@@ -1007,3 +1008,60 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv):
     plt.show()
     return m,p,v_id # m:指定した文のdf, p:単語の音量配列
 
+# 動画の全単語の音量の確率分布を調べる
+def viewdist(f_path,df_csv,i):
+    #データの読み込み
+    txt=pd.read_csv(f'{f_path}/data/textaudio/csv/{df_csv.iloc[i,0]}_fullinfo.csv', index_col=0)
+    for i in range(len(txt)):
+        if np.isnan(txt["maxvol"][i]):
+            txt.iloc[i,10]=0.0
+    w=[]
+    for i in range(len(txt)):
+        if txt["maxvol"][i]==0.0:
+            w.append(i)
+    txt=txt.drop(index=txt.index[w])
+    data=pd.DataFrame(txt["maxvol"])
+    f = Fitter(data,distributions=['gamma', 'rayleigh', 'uniform','norm'])
+    f.fit()
+    s=f.summary()
+    b=list(f.get_best().keys())[0]
+    left,right=checkdistover_count(f)
+    return s,f,b,left,right
+
+# 単語の音量が確率分布よりも大きいか調べる
+def checkdistover_count(f):
+    a=list(f.fitted_pdf)
+    for i in range(4):
+        if a[i]==list(f.get_best().keys())[0]:
+            m=i
+    l=list(f.fitted_pdf.values())[m]
+    fy=f.y
+    left=[]
+    right=[]
+    for i in range(0,30):
+        if l[i] < ((fy[i])/10.0):
+            left.append(i)
+    for i in range(50,100):
+        if l[i] < ((fy[i])/3.0):
+            right.append(i)
+    return left,right
+
+# 単語の音量が確率分布よりも大きいbinをリストlq,rqで返す
+def checkdistover(f_path,df_csv,i,loop):
+    r=[]
+    l=[]
+    for n in range(loop):
+        s,f,b,left,right=viewdist(f_path,df_csv,i)
+        r.append(right)
+        l.append(left)
+    q=[]
+    for i in range(len(l)):
+        for ii in range(len(l[i])):
+            q.append(l[i][ii])
+    lq=pd.Series(q).sort_values().unique()
+    q=[]
+    for i in range(len(r)):
+        for ii in range(len(r[i])):
+            q.append(r[i][ii])
+    rq=pd.Series(q).sort_values().unique()
+    return s,f,b,lq,rq
