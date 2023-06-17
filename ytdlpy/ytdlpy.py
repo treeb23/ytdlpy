@@ -952,7 +952,7 @@ def make_fullinfo_df(f_path,i):
     return df
 
 # 動画音声ダウンロードからデータセット用csv作成まで
-def crcsv(URL,bt=True,bw=True,bf=True):
+def crcsv(f_path,URL,bt=True,bw=True,bf=True):
     """if make_df(True or False) bt:text.csv, bw:text(word).csv, bf:fullinfo.csv"""
     i=""
     df_csv=readwrite_csv(f_path)
