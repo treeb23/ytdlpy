@@ -1002,7 +1002,7 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=Tr
     m=txt[txt["sentence_num"]==x]
     start=int(float(m["word_starttime"][w])*16000)
     end=int(float(m["word_endtime"][w])*16000)
-    print(f"{df_csv["title"][i]}/{v_id}_{x}.wav, {start/16000}~{end/16000}[s], {start}~{end}")
+    print(f"{df_csv['title'][i]}/{v_id}_{x}.wav, {start/16000}~{end/16000}[s], {start}~{end}")
     p=pd.DataFrame(wav)[0][start:end]
     word=m["word"][w]
     maxvol=m["maxvol"][w]
