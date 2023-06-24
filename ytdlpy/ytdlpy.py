@@ -1006,7 +1006,7 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=Tr
     p=pd.DataFrame(wav)[0][start:end]
     word=m["word"][w]
     maxvol=m["maxvol"][w]
-    print(f"{m["sentence"][w]}, {word}, max: {maxvol}")
+    print(f'{m["sentence"][w]}, {word}, max: {maxvol}')
     if wavplot==True:
         plt.plot(p)
         plt.show()
