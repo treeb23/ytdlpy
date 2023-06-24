@@ -15,6 +15,9 @@ lab/
     　 └ wav/
 ```
 
+<details>
+
+<summary>バージョン履歴</summary>
 
 > ver 0.0.1 2023/04/05 字幕ダウンロード ~ 分割した音声の確認
 > 
@@ -43,3 +46,5 @@ lab/
 > ver 0.0.13 2023/06/16 crcsv,plotvol,plotwavを追加
 > 
 > ver 0.0.14 2023/06/16 viewdist,checkdistover_count,checkdistoverを追加
+
+</details>
