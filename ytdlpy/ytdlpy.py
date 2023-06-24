@@ -991,7 +991,7 @@ def plotvol(i,df_csv,f_path):
     figure.savefig(save_path)
 
 # 単語の音声波形を表示
-def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv):
+def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=True,wavinfo=True,wavplay=True):
     i=video_num
     x=sentence_num
     w=word_num
@@ -1006,9 +1006,21 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv):
     p=pd.DataFrame(wav)[0][start:end]
     word=m["word"][w]
     maxvol=m["maxvol"][w]
-    plt.plot(p)
-    plt.show()
+    if wavplot==True:
+        plt.plot(p)
+        plt.show()
+    if wavinfo==True:
+        with wave.open(wav_path, "rb") as wr:
+            params = wr.getparams()
+            ch_num, sampwidth, s_r, frame_num, comptype, compname = params
+            sec=frame_num / s_r
+            print(f"Sampling rate: {s_r}, Frame num: {frame_num}, Sec: {sec}, Samplewidth: {sampwidth}, Channel num: {ch_num}, ")
+    if wavplay==True:
+        plt.figure(figsize=(10,6))
+        librosa.display.waveshow(wav,sr=sr)
+        display(IPython.display.Audio(wav, rate=sr))
     return m,p,v_id,word,maxvol # m:指定した文のdf, p:単語の音量配列
+
 
 # 動画の全単語の音量の確率分布を調べる
 def viewdist(f_path,df_csv,i):
