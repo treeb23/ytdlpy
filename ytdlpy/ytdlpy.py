@@ -1080,3 +1080,26 @@ def checkdistover(f_path,df_csv,i,loop):
             q.append(r[i][ii])
     rq=pd.Series(q).sort_values().unique()
     return s,f,b,lq,rq
+
+# (trial)
+def genvec_bert(text,embedding_dim=768):
+    model = BertModel.from_pretrained('bert-base-uncased',output_attentions=True,output_hidden_states = True)
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    encoded_input = tokenizer(text, return_tensors='pt')
+    l = len(encoded_input['input_ids'][0])
+    if l==2:
+        a=nn.Embedding(1, embedding_dim)
+        b=torch.tensor([0])
+        embed_word = a(b)
+        embed_word[0] = torch.tensor(np.zeros(embedding_dim, dtype = float))
+    else:
+        a = nn.Embedding(l-2, embedding_dim) #nn.Embeddingの形を作る
+        b = torch.tensor(list(range(0,l-2))) #tensor型のリストを用意
+        embed_word = a(b) #nn.Embeddingのベクトルを生成
+
+    output = model(**encoded_input)
+    last_hidden_state=output[0][0]
+    for i in range(1,l-1):
+        embed_word[i-1]=last_hidden_state[i]
+
+    return embed_word
