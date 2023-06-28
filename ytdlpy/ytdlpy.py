@@ -1024,8 +1024,8 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=Tr
         return m,p,v_id,word,maxvol # m:指定した文のdf, p:単語の音量配列
     if w==-1:
         # 動画を指定して文番号を指定して音声と音声情報と波形を表示
-        v_id,df_text,v_title=y.df_read(i,df_csv,f_path)
-        _,_,sentence=y.wav_show(f_path,x,v_id,df_text,view=True)
+        v_id,df_text,v_title=df_read(i,df_csv,f_path)
+        _,_,sentence=wav_show(f_path,x,v_id,df_text,view=True)
 
 
 # 動画の全単語の音量の確率分布を調べる
