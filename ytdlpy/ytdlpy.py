@@ -1000,27 +1000,32 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=Tr
     wav, sr = librosa.core.load(wav_path,sr=16000, mono=True)
     txt=pd.read_csv(f'{f_path}/data/textaudio/csv/{v_id}_fullinfo.csv', index_col=0)
     m=txt[txt["sentence_num"]==x]
-    start=int(float(m["word_starttime"].reset_index(drop=True)[w])*16000)
-    end=int(float(m["word_endtime"].reset_index(drop=True)[w])*16000)
-    print(f"{df_csv['title'][i]}/{v_id}_{x}.wav, {start/16000}~{end/16000}[s], {start}~{end}")
-    p=pd.DataFrame(wav)[0][start:end]
-    word=m["word"].reset_index(drop=True)[w]
-    maxvol=m["maxvol"].reset_index(drop=True)[w]
-    print(f'{m["sentence"].reset_index(drop=True)[w]}, {word}, max: {maxvol}')
-    if wavplot==True:
-        plt.plot(p)
-        plt.show()
-    if wavinfo==True:
-        with wave.open(wav_path, "rb") as wr:
-            params = wr.getparams()
-            ch_num, sampwidth, s_r, frame_num, comptype, compname = params
-            sec=frame_num / s_r
-            print(f"Sampling rate: {s_r}, Frame num: {frame_num}, Sec: {sec}, Samplewidth: {sampwidth}, Channel num: {ch_num}, ")
-    if wavplay==True:
-        plt.figure(figsize=(10,6))
-        librosa.display.waveshow(wav,sr=sr)
-        display(IPython.display.Audio(wav, rate=sr))
-    return m,p,v_id,word,maxvol # m:指定した文のdf, p:単語の音量配列
+    if not w==-1:
+        start=int(float(m["word_starttime"].reset_index(drop=True)[w])*16000)
+        end=int(float(m["word_endtime"].reset_index(drop=True)[w])*16000)
+        print(f"{df_csv['title'][i]}/{v_id}_{x}.wav, {start/16000}~{end/16000}[s], {start}~{end}")
+        p=pd.DataFrame(wav)[0][start:end]
+        word=m["word"].reset_index(drop=True)[w]
+        maxvol=m["maxvol"].reset_index(drop=True)[w]
+        print(f'{m["sentence"].reset_index(drop=True)[w]}, {word}, max: {maxvol}')
+        if wavplot==True:
+            plt.plot(p)
+            plt.show()
+        if wavinfo==True:
+            with wave.open(wav_path, "rb") as wr:
+                params = wr.getparams()
+                ch_num, sampwidth, s_r, frame_num, comptype, compname = params
+                sec=frame_num / s_r
+                print(f"Sampling rate: {s_r}, Frame num: {frame_num}, Sec: {sec}, Samplewidth: {sampwidth}, Channel num: {ch_num}, ")
+        if wavplay==True:
+            plt.figure(figsize=(10,6))
+            librosa.display.waveshow(wav,sr=sr)
+            display(IPython.display.Audio(wav, rate=sr))
+        return m,p,v_id,word,maxvol # m:指定した文のdf, p:単語の音量配列
+    if w==-1:
+        # 動画を指定して文番号を指定して音声と音声情報と波形を表示
+        v_id,df_text,v_title=y.df_read(i,df_csv,f_path)
+        _,_,sentence=y.wav_show(f_path,x,v_id,df_text,view=True)
 
 
 # 動画の全単語の音量の確率分布を調べる
