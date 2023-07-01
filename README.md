@@ -46,5 +46,7 @@ lab/
 > ver 0.0.13 2023/06/16 crcsv,plotvol,plotwavを追加
 > 
 > ver 0.0.14 2023/06/16 viewdist,checkdistover_count,checkdistoverを追加
+> 
+> ver 0.0.15 2023/07/02 f_pathをglobalに設定
 
 </details>
