@@ -44,8 +44,10 @@ except:
 # -------------
 # ここから基礎関数
 
-# ディレクトリのサイズを取得
 def get_dir_size(path='.'):
+    """
+    ディレクトリのサイズを取得
+    """
     print("[get_dir_sizeを実行]")
     if sys.version_info[0]>=3:
         if sys.version_info[1]>=5:
@@ -61,8 +63,11 @@ def get_dir_size(path='.'):
             size=f"{get_path_size(path)/(1024*1024)} MB"
             return size
 
-# ファイルパスの設定
 def filepath():
+    """
+    ファイルパスの設定
+    """
+    global f_path
     f_path=".."
     try:
         from google.colab import drive # Google Driveをcolabにマウント
@@ -71,10 +76,11 @@ def filepath():
     except ModuleNotFoundError as e:
         print(e)
     print(f"[ファイルパスf_pathを'{f_path}'に設定]")
-    return f_path
 
-# 音声と動画を最高品質でダウンロード
 def YTDL(url,folder,errlist):
+    """
+    音声と動画を最高品質でダウンロード
+    """
     try:
         with YoutubeDL() as ydl:
             res = ydl.extract_info(url,download=False)
@@ -111,28 +117,32 @@ def YTDL(url,folder,errlist):
         print("error")
     return errlist
 
-# 字幕ダウンロードから音声分割まで一括実行（CSV書き込み含む）
-def fromDLtoCSV(f_path,URL):
+def fromDLtoCSV(URL):
+    """
+    字幕ダウンロードから音声分割まで一括実行（CSV書き込み含む）
+    """
     print("[fromDLtoCSVを実行]")
     text,text_jp,start,duration,_=yt_totext(URL)
-    if url_check(f_path,_)==False:
+    if url_check(_)==False:
         return False
     if len(text)==0:
         print("youtubeの英語字幕(手動)が作成されていない可能性があります")
         return False
     print("VideoID:",_)
-    df_text=create_dftext(text,start,duration,f_path,_)
-    v_title=audio_dl(URL,f_path,_)
-    create_sep_wav(f_path,_,df_text)
-    readwrite_csv(f_path,mode=1,v_id=_,v_title=v_title,df_text=df_text)
+    df_text=create_dftext(text,start,duration,_)
+    v_title=audio_dl(URL,_)
+    create_sep_wav(_,df_text)
+    readwrite_csv(mode=1,v_id=_,v_title=v_title,df_text=df_text)
 
-# 分割した音声から文ごとの最大音量単語追加済みDataFrame作成まで
-def TimestampDF(f_path,df_csv,i):
-    v_id,df_text,v_title=df_read(i,df_csv,f_path)
+def TimestampDF(df_csv,i):
+    """
+    分割した音声から文ごとの最大音量単語追加済みDataFrame作成まで
+    """
+    v_id,df_text,v_title=df_read(i,df_csv)
     df_txt=df_text
     for x in range(len(df_txt)):
-        _,_,sentence=wav_show(f_path,x,v_id,df_txt,view=False)
-        timestamp=gc_stt_getword_timestamp(f_path=f_path,v_id=v_id,x=x)
+        _,_,sentence=wav_show(x,v_id,df_txt,view=False)
+        timestamp=gc_stt_getword_timestamp(v_id=v_id,x=x)
         word,pos=lookup_word(timestamp,sentence)
         df_txt=addWordtoDF(df_txt,word,pos,x)
     df_txt.to_csv(f'{f_path}/data/textaudio/csv/{v_id}_text.csv')
@@ -143,8 +153,10 @@ def TimestampDF(f_path,df_csv,i):
 # ----------------------------
 # ここから音声及び字幕取得、音声処理
 
-# YoutubeのURLから字幕データとタイムスタンプを取得
 def yt_totext(URL):
+    """
+    YoutubeのURLから字幕データとタイムスタンプを取得
+    """
     print("[yt_totextを実行]")
     if ('=' in URL)==True:
         URL=URL[URL.find('=')+1:]
@@ -168,23 +180,29 @@ def yt_totext(URL):
         print("error")
     return text,text_jp,start,duration,v_id
 
-# すでに取得済みのURLか確認
-def url_check(f_path,v_id):
+def url_check(v_id):
+    """
+    すでに取得済みのURLか確認
+    """
     print("[url_checkを実行]")
-    df_csv=readwrite_csv(f_path)
+    df_csv=readwrite_csv()
     for i in range(len(df_csv["VideoID"])):
         if v_id==df_csv["VideoID"][i]:
             print("このURLでは既に実行済み")
             return False
 
-# 字幕データの表示
 def display_Text(text):
+    """
+    字幕データの表示
+    """
     for i in range(len(text)):
         print(text[i])
     print(len(text))
 
-# 字幕とタイムスタンプのデータフレームの作成、データフレームの保存
-def create_dftext(text,start,duration,f_path,v_id):
+def create_dftext(text,start,duration,v_id):
+    """
+    字幕とタイムスタンプのデータフレームの作成、データフレームの保存
+    """
     print("[create_dftextを実行]")
     df_text=pd.DataFrame(data=text,columns=['text'])
     df_text['start']=pd.DataFrame(data=start,columns=['start'])
@@ -194,8 +212,10 @@ def create_dftext(text,start,duration,f_path,v_id):
     print(f"[{v_id}のdf_textを/data/textaudio/dst/{v_id}_df_obj.zipとして保存]")
     return df_text
 
-# YoutubeのURLからオーディオ、動画のタイトルを取得
-def audio_dl(URL,f_path,v_id):
+def audio_dl(URL,v_id):
+    """
+    YoutubeのURLからオーディオ、動画のタイトルを取得
+    """
     print("[audio_dlを実行]")
     ydl_audio_opts = {
         'outtmpl': f"{f_path}/data/textaudio/wav/{v_id}.wav",
@@ -208,8 +228,10 @@ def audio_dl(URL,f_path,v_id):
     print(f'[{res["title"]}の音声をダウンロード完了]')
     return res["title"]
 
-# ダウンロードした音声をタイムスタンプをもとに分割
-def create_sep_wav(f_path,v_id,df_text):
+def create_sep_wav(v_id,df_text):
+    """
+    ダウンロードした音声をタイムスタンプをもとに分割
+    """
     print("[create_sep_wavを実行]")
     sound = AudioSegment.from_file(f"{f_path}/data/textaudio/wav/{v_id}.wav", "webm")
     new_dir_path = f'{f_path}/data/textaudio/wav/{v_id}'
@@ -226,8 +248,11 @@ def create_sep_wav(f_path,v_id,df_text):
     print("[ダウンロードした音声をタイムスタンプをもとに分割]")
     return None
 
-# 保存済みの動画一覧を表示/更新
-def readwrite_csv(f_path,mode=0,v_id=[],v_title=[],df_text=[]):
+def readwrite_csv(mode=0,v_id=[],v_title=[],df_text=[]):
+    """
+    保存済みの動画一覧を表示/更新
+    mode 0(default): readonly, mode 1: write 
+    """
     print("[readwrite_csvを実行]")
     if mode==0: #readonly
         try:
@@ -248,8 +273,10 @@ def readwrite_csv(f_path,mode=0,v_id=[],v_title=[],df_text=[]):
             df_csv.to_csv(f'{f_path}/data/textaudio/csv/tmp.csv', mode='x')
         print("[URLのID、動画のタイトル、音声の分割数をCSVに記録]")
 
-# 保存したデータフレームを読み込み、URLのID、動画のタイトルの変数を更新
-def df_read(i,df,f_path):
+def df_read(i,df):
+    """
+    保存したデータフレームを読み込み、URLのID、動画のタイトルの変数を更新
+    """
     print("[df_readを実行]")
     v_id="";df_text=[];v_title=""
     try:
@@ -263,8 +290,10 @@ def df_read(i,df,f_path):
         print("error")
     return v_id,df_text,v_title
 
-# 音声ファイルの情報確認
 def wav_info(wav_path):
+    """
+    音声ファイルの情報確認
+    """
     print("[wav_infoを実行]")
     with wave.open(wav_path, "rb") as wr:
         params = wr.getparams()
@@ -273,8 +302,10 @@ def wav_info(wav_path):
         #print(f"Sampling rate: {sr}, Frame num: {frame_num}, Sec: {sec}, Samplewidth: {sampwidth}, Channel num: {ch_num}, ")
         return sr,frame_num,sec,sampwidth,ch_num
 
-# wav_show()におけるグラフの書式設定
 def pyplot_set():
+    """
+    wav_show()におけるグラフの書式設定
+    """
     print("[pyplot_setを実行]")
     # pyplotのデフォルト値を設定
     plt.rcParams.update({
@@ -293,8 +324,10 @@ def pyplot_set():
     np.set_printoptions(threshold=0)  # 可能ならndarrayを省略して表示
     np.set_printoptions(edgeitems=1)  # 省略時に１つの要素だけ表示
 
-# 音声ファイルの情報表示(グラフと音声)
-def wav_show(f_path,x,v_id,df_text,view=True):
+def wav_show(x,v_id,df_text,view=True):
+    """
+    音声ファイルの情報表示(グラフと音声)
+    """
     print("[wav_showを実行]")
     wav_path=f"{f_path}/data/textaudio/wav/{v_id}/{v_id}_{x}.wav"
     print(f"wav file : {v_id}_{x}.wav")
@@ -310,8 +343,10 @@ def wav_show(f_path,x,v_id,df_text,view=True):
         display(IPython.display.Audio(wav, rate=sr))#音声はBase64エンコーディングしてJupyterNotebookに埋め込まれる
     return wav,sr,wav_text
 
-# googlecloud speech-to-textによる単語タイムスタンプ及び最大音量取得
-def gc_stt_getword_timestamp(f_path,v_id,x):
+def gc_stt_getword_timestamp(v_id,x):
+    """
+    googlecloud speech-to-textによる単語タイムスタンプ及び最大音量取得
+    """
     # 音声のサンプリングレートを変換した一時ファイルを作成
     wav_path=f"{f_path}/data/textaudio/wav/{v_id}/{v_id}_{x}.wav"
     wav, sr = librosa.core.load(wav_path,sr=16000, mono=True)
@@ -359,8 +394,10 @@ def gc_stt_getword_timestamp(f_path,v_id,x):
     return stamp
     #https://github.com/GoogleCloudPlatform/python-docs-samples/blob/HEAD/speech/snippets/transcribe_word_time_offsets.py
 
-# 文内の最大音量の単語及びその品詞取得
 def lookup_word(timestamp,sentence):
+    """
+    文内の最大音量の単語及びその品詞取得
+    """
     try:
         word=timestamp.iloc[timestamp["max"].idxmax(),0]
         morph = nltk.word_tokenize(word)
@@ -378,8 +415,10 @@ def lookup_word(timestamp,sentence):
         pos="---"
         return word,pos
 
-# DataFrameに最大単語と品詞を追加
 def addWordtoDF(df_text,word,pos,x):
+    """
+    DataFrameに最大単語と品詞を追加
+    """
     df=df_text
     try:
         df.iloc[x, 3]=word
@@ -391,8 +430,10 @@ def addWordtoDF(df_text,word,pos,x):
         df.iloc[x, 4]=pos
     return df
 
-# 文ごとに単語と最大音量を記録するdfを作成
 def wordvoldf(i,v_id,x,sentence,df):
+    """
+    文ごとに単語と最大音量を記録するdfを作成
+    """
     if len(df.columns)==4:
         try:
             for n in range(len(df)):
@@ -418,8 +459,10 @@ def wordvoldf(i,v_id,x,sentence,df):
                 df.iloc[n,6]=n
     return df
 
-# nltkでtextを形態素解析した状態にしたdfを作る
 def nltk_df_txt(df_txt):
+    """
+    nltkでtextを形態素解析した状態にしたdfを作る
+    """
     df=df_txt
     df['text_morph']=""
     for i in range(len(df)):
@@ -428,8 +471,10 @@ def nltk_df_txt(df_txt):
         df.iloc[i, 5]=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
     return df
 
-# 単語辞書作成のために空白でテキストを分割してリスト化
 def split_space(df):
+    """
+    単語辞書作成のために空白でテキストを分割してリスト化
+    """
     sentences = []
     for text in df['text_morph']:
         text_list = text.split(' ')
@@ -440,8 +485,10 @@ def split_space(df):
 # ----------------------------
 # ここからw2v最大音量品詞推定モデル
 
-# 単語辞書作成
 def wordtoindex(sentences):
+    """
+    単語辞書作成
+    """
     wordindex = {}
     for text in sentences:
         for word in text:
@@ -450,8 +497,10 @@ def wordtoindex(sentences):
     print("vocabsize:",len(wordindex))
     return wordindex
 
-# 文中の最大音量品詞推定モデルの学習
-def set_trialLSTM(f_path, df, wordindex, ep=50, embdim=100, trainrate=0.7, modelpath="model"):
+def set_trialLSTM(df, wordindex, ep=50, embdim=100, trainrate=0.7, modelpath="model"):
+    """
+    文中の最大音量品詞推定モデルの学習
+    """
     categories = df['pos'].unique()
     print(categories)
 
@@ -584,8 +633,10 @@ def set_trialLSTM(f_path, df, wordindex, ep=50, embdim=100, trainrate=0.7, model
 
     return losses
 
-# 文中の最大音量品詞推定モデルによる推定
-def test_trialLSTM(f_path,df,wordindex,modelpath,embdim=100,text=""):
+def test_trialLSTM(df,wordindex,modelpath,embdim=100,text=""):
+    """
+    文中の最大音量品詞推定モデルによる推定
+    """
     categories = df['pos'].unique()
     word2index=wordindex
 
@@ -651,8 +702,10 @@ def test_trialLSTM(f_path,df,wordindex,modelpath,embdim=100,text=""):
     predict=categories[x]
     return predict,out
 
-# 文中の最大音量品詞推定モデルのテスト結果表示
 def display_testresult(text,predict,out):
+    """
+    文中の最大音量品詞推定モデルのテスト結果表示
+    """
     morph = nltk.word_tokenize(text)
     pos = nltk.pos_tag(morph)
     print(pos)
@@ -665,8 +718,10 @@ def display_testresult(text,predict,out):
     s = softmax(out.numpy())[0]*100
     return n,s
 
-# nltk品詞タグの一覧をDataFrameで返す
 def nltktagcheck():
+    """
+    nltk品詞タグの一覧をDataFrameで返す
+    """
     nltkdf = pd.DataFrame(
         data=[{'品詞タグ': 'CC', '品詞名（英語）': 'Coordinating conjunction', '品詞名（日本語）': '調整接続詞'},
           {'品詞タグ': 'CD', '品詞名（英語）': 'Cardinal number', '品詞名（日本語）': '基数'},
@@ -711,19 +766,21 @@ def nltktagcheck():
 # ---------------------------------------
 # ここからw2v線形回帰モデルによる単語最大音量予測
 
-# 動画ごとに単語と最大音量を記録したdfを作成
-def makedf_word_maxvol(i,df_csv,f_path):
+def makedf_word_maxvol(i,df_csv):
+    """
+    動画ごとに単語と最大音量を記録したdfを作成
+    """
     df=''
-    v_id,df_text,v_title=df_read(i,df_csv,f_path)
+    v_id,df_text,v_title=df_read(i,df_csv)
 
     for x in range(len(df_text)):
         if x==0:
-            _,_,sentence=wav_show(f_path,x,v_id,df_text,view=False)
-            timestamp=gc_stt_getword_timestamp(f_path,v_id,x)
+            _,_,sentence=wav_show(x,v_id,df_text,view=False)
+            timestamp=gc_stt_getword_timestamp(v_id,x)
             df=wordvoldf(i,v_id,x,sentence,timestamp)
         else:
-            _,_,sentence=wav_show(f_path,x,v_id,df_text,view=False)
-            timestamp=gc_stt_getword_timestamp(f_path,v_id,x)
+            _,_,sentence=wav_show(x,v_id,df_text,view=False)
+            timestamp=gc_stt_getword_timestamp(v_id,x)
             df=pd.concat([df,wordvoldf(i,v_id,x,sentence,timestamp)])
 
     df=df.reset_index(drop=True)
@@ -742,16 +799,21 @@ def makedf_word_maxvol(i,df_csv,f_path):
         df.iloc[i, 7]=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
     df.to_csv(f'{f_path}/data/textaudio/csv/{v_id}_text(word).csv')
 
-# 保存した動画のword,maxvolのdfを呼び出す
-def calldf_word_maxvol(i,df_csv,f_path):
-    v_id,df_text,v_title=df_read(i,df_csv,f_path)
+def calldf_word_maxvol(i,df_csv):
+    """
+    保存した動画のword,maxvolのdfを呼び出す
+    """
+    v_id,df_text,v_title=df_read(i,df_csv)
     df_txts = pd.read_csv(f'{f_path}/data/textaudio/csv/{v_id}_text(word).csv',index_col=0)
     for i in range(len(df_txts)):# df["text_morph"]に学習で使用しやすい形式にした単語を記録
         df_txts.iloc[i, 7]=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", df_txts['word'][i]).lower()
     return v_id,df_text,v_title,df_txts
 
-# df_all作成
-def make_dfall(df_all,df_txts,f_path): # df_all=[]で入力すればdf_txtsがdf_allになる
+def make_dfall(df_all,df_txts):
+    """
+    df_text_all(word)を作成\n
+    df_all=[]で入力すればdf_txtsがdf_allになる
+    """
     if len(df_all)==0:
         df_all=df_txts
     else:
@@ -759,19 +821,23 @@ def make_dfall(df_all,df_txts,f_path): # df_all=[]で入力すればdf_txtsがdf
         df_all.to_csv(f'{f_path}/data/textaudio/csv/df_text_all(word).csv')
     return df_all
 
-# 保存したdf_allを呼び出す
-def read_dfall(f_path):
+def read_dfall():
+    """
+    保存したdf_text_all(word)を呼び出す
+    """
     df_all=pd.read_csv(f'{f_path}/data/textaudio/csv/df_text_all(word).csv',index_col=0)
     print(df_all['video'].unique())
     df_all=df_all.reset_index(drop=True)
     return df_all
 
-# 学習用データセット作成
-def w2v_makedataset(f_path,df_all,csvname="df_vec(w2vgn300)",model='word2vec-google-news-300',vecdim=300):
+def w2v_makedataset(df_all,csvname="df_vec(w2vgn300)",model='word2vec-google-news-300',vecdim=300):
+    """
+    学習用データセット作成
+    """
     d=pd.DataFrame(columns=["word","wordnum","max"])# 学習用データセットの列名設定
     for i in range(vecdim):
         d[f"vec{i}"]=""
-    wv=load_model(f_path,model)
+    wv=load_model(model)
     bar=tqdm(total=len(df_all))
     bar.set_description('Progress')
     for i in range(len(df_all)):
@@ -795,8 +861,10 @@ def w2v_makedataset(f_path,df_all,csvname="df_vec(w2vgn300)",model='word2vec-goo
     d.to_csv(f'{f_path}/data/textaudio/csv/{csvname}.csv')
     return wv,d
 
-# 学習済みw2vモデルのダウンロード及び保存
-def download_model(f_path,model):
+def download_model(model):
+    """
+    学習済みw2vモデルのダウンロード及び保存
+    """
     import gensim.downloader as api
     wv = api.load(model)
 
@@ -804,21 +872,27 @@ def download_model(f_path,model):
     path_file = f"{f_path}/data/textaudio/pretrainedmodels/{model}.pkl"
     pickle.dump(wv, open(path_file, 'wb'))
 
-# 保存したw2vモデルの読み込み
-def load_model(f_path,model):
+def load_model(model):
+    """
+    保存したw2vモデルの読み込み
+    """
     import pickle
     path_file = f"{f_path}/data/textaudio/pretrainedmodels/{model}.pkl"
     clf = pickle.load(open(path_file, 'rb'))
     return clf
 
-# 保存した学習用データセットの読み込み
-def w2v_readdataset(f_path,csvname="df_vec(w2vgn300)",model='word2vec-google-news-300'):
-    wv=load_model(f_path,model)
+def w2v_readdataset(csvname="df_vec(w2vgn300)",model='word2vec-google-news-300'):
+    """
+    保存した学習用データセットの読み込み
+    """
+    wv=load_model(model)
     d=pd.read_csv(f'{f_path}/data/textaudio/csv/df_vec(w2vgn300).csv',index_col=0)
     return wv,d
 
-# 事前学習ベクトル、音量とベクトルのデータセット呼び出し、線形回帰モデルの設定
-def set_linearw2vmodel(f_path,d,model='word2vec-google-news-300'):
+def set_linearw2vmodel(d,model='word2vec-google-news-300'):
+    """
+    事前学習ベクトル、音量とベクトルのデータセット呼び出し、線形回帰モデルの設定
+    """
     X=d.iloc[:, 3:].fillna(0)
     Y=d.iloc[:, 2].fillna(0)
     # モデルの宣言
@@ -831,22 +905,28 @@ def set_linearw2vmodel(f_path,d,model='word2vec-google-news-300'):
     # model.score(x_test, y_test)
     return x_train,x_test,y_train,y_test,model
 
-# 単語ごとに予測を行い、データセットの値と比較
 def test_linearw2v(i,d,model):
+    """
+    単語ごとに予測を行い、データセットの値と比較
+    """
     D=d.iloc[i,2]
     x=d.iloc[:, 3:].fillna(0)
     X = x.iloc[i, :]
     y_pred = model.predict([X])[0]
     return y_pred,D
 
-# df_allから文をランダムに選んでくる
 def random_selecttext(df_all):
+    """
+    df_allから文をランダムに選んでくる
+    """
     r=random.randint(0, len(df_all.iloc[:,3].unique()))
     text=df_all.iloc[:,3].unique()[r]
     return text
 
-# 文をモデルに入力して単語ごとの音量を予測
 def testmodel_linearw2v(text,wv,model):
+    """
+    文をモデルに入力して単語ごとの音量を予測
+    """
     morph = nltk.word_tokenize(text)
     s=" ".join([str(i) for i in morph])
     txt=re.sub(r'[\．_－―─！＠＃＄％＾＆\-‐|\\＊\“（）＿■×+α※÷⇒—●★☆〇◎◆▼◇△□(：〜～＋=)／*&^%$#@!~`){}［］…\[\]\"\”\’:;<>?＜＞〔〕〈〉？、。・,\./『』【】「」→←○《》≪≫\n\u3000]+', "", s).lower()
@@ -864,8 +944,10 @@ def testmodel_linearw2v(text,wv,model):
         df=pd.DataFrame([w,y_pred]).T
     return df
 
-# 正解の音量データ
 def vol_ans(df_all,text):
+    """
+    正解の音量データ
+    """
     ss=df_all[df_all['text'] == text]
     s1=[]
     s2=[]
@@ -876,8 +958,10 @@ def vol_ans(df_all,text):
     df=pd.DataFrame([s1,s2]).T
     return df
 
-# x_dataについて全予測(x_data=x_trainなど)
 def test_linearw2v_all(x_data,y_data,model):
+    """
+    x_dataについて全予測(x_data=x_trainなど)
+    """
     ld=[]
     lp=[]
     lpd=[]
@@ -891,15 +975,17 @@ def test_linearw2v_all(x_data,y_data,model):
         lpd.append(y_pred - D)
     return ld,lp,lpd
 
-# 動画の全文の単語の最大音量や音声のタイムスタンプを含んだデータフレームを保存する
-def make_fullinfo_df(f_path,i):
+def make_fullinfo_df(i):
+    """
+    動画の全文の単語の最大音量や音声のタイムスタンプを含んだデータフレームを保存する
+    """
     from google.cloud import speech
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = api_key_path = f'{f_path}/code/secretkey.json'
     client = speech.SpeechClient()
-    df_csv=readwrite_csv(f_path)
-    v_id,df_text,v_title=df_read(i,df_csv,f_path)
+    df_csv=readwrite_csv()
+    v_id,df_text,v_title=df_read(i,df_csv)
     for x in range(len(df_text)):
-        sentence=wav_show(f_path,x,v_id,df_text,view=False)[2]
+        sentence=wav_show(x,v_id,df_text,view=False)[2]
         starttime=df_text["start"][x]
         duration=df_text["duration"][x]
         wav_path=f"{f_path}/data/textaudio/wav/{v_id}/{v_id}_{x}.wav"
@@ -951,28 +1037,32 @@ def make_fullinfo_df(f_path,i):
     df.to_csv(f'{f_path}/data/textaudio/csv/{v_id}_fullinfo.csv')
     return df
 
-# 動画音声ダウンロードからデータセット用csv作成まで
-def crcsv(f_path,URL,bt=True,bw=True,bf=True):
-    """if make_df(True or False) bt:text.csv, bw:text(word).csv, bf:fullinfo.csv"""
+def crcsv(URL,bt=True,bw=True,bf=True):
+    """
+    動画音声ダウンロードからデータセット用csv作成まで
+    if make_df(True or False) bt:text.csv, bw:text(word).csv, bf:fullinfo.csv
+    """
     i=""
-    df_csv=readwrite_csv(f_path)
-    if not url_check(f_path,yt_totext(URL)[4])==False:
-        fromDLtoCSV(f_path,URL) # URLからdst,音声データを作成してtmp.csvを更新
-        df_csv=readwrite_csv(f_path)
+    df_csv=readwrite_csv()
+    if not url_check(yt_totext(URL)[4])==False:
+        fromDLtoCSV(URL) # URLからdst,音声データを作成してtmp.csvを更新
+        df_csv=readwrite_csv()
         i=len(df_csv)-1 # 一番最新のvideoの番号
         if bt==True:
-            df_txt=TimestampDF(f_path,df_csv,i) # {v_id}_text.csv を作成
+            df_txt=TimestampDF(df_csv,i) # {v_id}_text.csv を作成
         if bw==True:
-            makedf_word_maxvol(i,df_csv,f_path) # {v_id}_text(word).csv を作成
+            makedf_word_maxvol(i,df_csv) # {v_id}_text(word).csv を作成
         if bf==True:
-            make_fullinfo_df(f_path,i)
+            make_fullinfo_df(i)
     return i,df_csv
 
-# df_fullinfoから音量分布グラフを生成
-def plotvol(i,df_csv,f_path):
+def plotvol(i,df_csv):
+    """
+    df_fullinfoから音量分布グラフを生成
+    """
     if i=="":
         return False
-    d=df_read(i,df_csv,f_path)
+    d=df_read(i,df_csv)
     txt=pd.read_csv(f'{f_path}/data/textaudio/csv/{d[0]}_fullinfo.csv', index_col=0)
     v_id,df_text,v_title=d
     dfpl=txt
@@ -990,8 +1080,10 @@ def plotvol(i,df_csv,f_path):
     figure = plot.get_figure()
     figure.savefig(save_path)
 
-# 単語の音声波形を表示
-def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=True,wavinfo=True,wavplay=True):
+def plotwav(video_num:int,sentence_num:int,word_num:int,df_csv,wavplot=True,wavinfo=True,wavplay=True):
+    """
+    単語の音声波形を表示
+    """
     i=video_num
     x=sentence_num
     w=word_num
@@ -1024,12 +1116,13 @@ def plotwav(video_num:int,sentence_num:int,word_num:int,f_path,df_csv,wavplot=Tr
         return m,p,v_id,word,maxvol # m:指定した文のdf, p:単語の音量配列
     if w==-1:
         # 動画を指定して文番号を指定して音声と音声情報と波形を表示
-        v_id,df_text,v_title=df_read(i,df_csv,f_path)
-        _,_,sentence=wav_show(f_path,x,v_id,df_text,view=True)
+        v_id,df_text,v_title=df_read(i,df_csv)
+        _,_,sentence=wav_show(x,v_id,df_text,view=True)
 
-
-# 動画の全単語の音量の確率分布を調べる
-def viewdist(f_path,df_csv,i):
+def viewdist(df_csv,i):
+    """
+    動画の全単語の音量の確率分布を調べる
+    """
     #データの読み込み
     txt=pd.read_csv(f'{f_path}/data/textaudio/csv/{df_csv.iloc[i,0]}_fullinfo.csv', index_col=0)
     for i in range(len(txt)):
@@ -1048,8 +1141,10 @@ def viewdist(f_path,df_csv,i):
     left,right=checkdistover_count(f)
     return s,f,b,left,right
 
-# 単語の音量が確率分布よりも大きいか調べる
 def checkdistover_count(f):
+    """
+    単語の音量が確率分布よりも大きいか調べる
+    """
     a=list(f.fitted_pdf)
     for i in range(4):
         if a[i]==list(f.get_best().keys())[0]:
@@ -1066,12 +1161,14 @@ def checkdistover_count(f):
             right.append(i)
     return left,right
 
-# 単語の音量が確率分布よりも大きいbinをリストlq,rqで返す
-def checkdistover(f_path,df_csv,i,loop):
+def checkdistover(df_csv,i,loop):
+    """
+    単語の音量が確率分布よりも大きいbinをリストlq,rqで返す
+    """
     r=[]
     l=[]
     for n in range(loop):
-        s,f,b,left,right=viewdist(f_path,df_csv,i)
+        s,f,b,left,right=viewdist(df_csv,i)
         r.append(right)
         l.append(left)
     q=[]
@@ -1085,26 +1182,3 @@ def checkdistover(f_path,df_csv,i,loop):
             q.append(r[i][ii])
     rq=pd.Series(q).sort_values().unique()
     return s,f,b,lq,rq
-
-# (trial)
-def genvec_bert(text,embedding_dim=768):
-    model = BertModel.from_pretrained('bert-base-uncased',output_attentions=True,output_hidden_states = True)
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    encoded_input = tokenizer(text, return_tensors='pt')
-    l = len(encoded_input['input_ids'][0])
-    if l==2:
-        a=nn.Embedding(1, embedding_dim)
-        b=torch.tensor([0])
-        embed_word = a(b)
-        embed_word[0] = torch.tensor(np.zeros(embedding_dim, dtype = float))
-    else:
-        a = nn.Embedding(l-2, embedding_dim) #nn.Embeddingの形を作る
-        b = torch.tensor(list(range(0,l-2))) #tensor型のリストを用意
-        embed_word = a(b) #nn.Embeddingのベクトルを生成
-
-    output = model(**encoded_input)
-    last_hidden_state=output[0][0]
-    for i in range(1,l-1):
-        embed_word[i-1]=last_hidden_state[i]
-
-    return embed_word
