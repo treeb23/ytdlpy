@@ -76,6 +76,7 @@ def filepath():
     except ModuleNotFoundError as e:
         print(e)
     print(f"[ファイルパスf_pathを'{f_path}'に設定]")
+    return f_path
 
 def YTDL(url,folder,errlist):
     """
