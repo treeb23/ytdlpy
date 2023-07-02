@@ -47,6 +47,6 @@ lab/
 > 
 > ver 0.0.14 2023/06/16 viewdist,checkdistover_count,checkdistoverを追加
 > 
-> ver 0.0.15 2023/07/02 f_pathをglobalに設定
+> ver 0.0.15 2023/07/02 f_path,df_csvをglobalに設定
 
 </details>
